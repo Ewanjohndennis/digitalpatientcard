@@ -30,10 +30,13 @@
     gap: 0.5rem;
     padding: 0.5rem 1rem;
     background: transparent;
+    overflow: hidden;
   }
 }
 
 .pill-nav-items {
+  max-width: 100%;
+  overflow-x: auto; 
   position: relative;
   display: flex;
   align-items: center;
@@ -81,14 +84,14 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 0 var(--pill-pad-x);
+  padding: 0.35rem 0.6rem;
   background: var(--pill-bg, #fff);
   color: var(--pill-text, var(--base, #000));
   text-decoration: none;
   border-radius: 9999px;
   box-sizing: border-box;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 0;
   text-transform: uppercase;
   letter-spacing: 0.2px;
