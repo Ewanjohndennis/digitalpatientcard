@@ -26,6 +26,7 @@ export default function Home() {
   hoveredPillTextColor="#10b981"
   pillTextColor="#000000"
 />
+<div>
 <div className="flex flex-col items-center justify-center min-h-screen px-4">
   <BlurText
     text="Digital Patient Card"
@@ -48,5 +49,6 @@ export default function Home() {
       </div>
     </div>
   </div>
+</div>
   );
 }
