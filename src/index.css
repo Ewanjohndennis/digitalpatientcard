@@ -1,0 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300..900&family=Share+Tech+Mono&display=swap');
+@import "tailwindcss";
+body{
+    font-family: 'Alan Sans', sans-serif;
+}
