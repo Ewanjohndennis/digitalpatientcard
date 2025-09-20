@@ -26,14 +26,14 @@ export default function Home() {
   hoveredPillTextColor="#10b981"
   pillTextColor="#000000"
 />
-      <div className="text-center px-6 py-12">
+      <div className="px-6 py-12">
         <BlurText
   text="Digital Patient Card"
   delay={150}
   animateBy="words"
   direction="top"
   onAnimationComplete={handleAnimationComplete}
-  className="text-6xl align-middle justify-center text-emerald-800 font-semibold mb-8"
+  className="text-6xl justify-center text-emerald-800 font-semibold mb-8"
 />
         <p className="text-lg md:text-xl mb-8 text-gray-700"> Your health records, anytime, anywhere.</p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
