@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FileText, UploadCloud, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 export default function PatientDashboard() {
   const [active, setActive] = useState("diseases");
   const [diseases, setDiseases] = useState([]);
@@ -29,6 +30,13 @@ export default function PatientDashboard() {
     { id: "settings", label: "Settings", icon: <Settings size={18} /> },
   ];
 
+  const logOut = async()=>{
+      const response = await axios.post("http://localhost:8080/patient/logout")
+      if(response.status>=200 && response.status<300){
+          navigate("/");
+      }   
+  }
+
   return (
     <div className="flex h-screen bg-gray-100">
       <aside className="w-64 bg-cyan-700 text-white flex flex-col">
@@ -48,7 +56,9 @@ export default function PatientDashboard() {
         </nav>
         <div className="p-4 border-t border-cyan-600">
           <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 w-full hover:bg-cyan-600 rounded-md">
-            <LogOut size={18} /> Logout
+            <LogOut onClick={
+              logOut
+            } size={18} /> Logout
           </button>
         </div>
       </aside>

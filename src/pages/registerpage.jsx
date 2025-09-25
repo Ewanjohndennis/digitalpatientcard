@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import register from "@/lib/Register";
 
 export default function RegisterPage() {
   const [registrationRole, setRegistrationRole] = useState("patient");
@@ -10,11 +11,11 @@ export default function RegisterPage() {
     confirmPassword: "",
     name: "",         // patient
     age: "",          // patient
-    bloodGroup: "",   // patient
-    doctname:   "",    // doctor
-    doctorId: "",     // doctor
+    phoneNumber: "",   // patient
+    // doctname: "",    // doctor
+    specialization: "",     // doctor
     hospital: "",     // doctor
-  });
+  })
 
   const navigate = useNavigate();
 
@@ -23,12 +24,18 @@ export default function RegisterPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    console.log("Register data:", registrationRole, formData);
 
-    if (registrationRole === "doctor") navigate("/doctor-dashboard");
-    else navigate("/patient-dashboard");
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    //console.log("Register data:", registrationRole, formData);
+
+    if (registrationRole === "doctor") {
+      await register('doctor', formData, navigate);
+    }
+    else {
+      await register('patient', formData, navigate);
+    }
   };
 
   return (
@@ -44,11 +51,10 @@ export default function RegisterPage() {
               <button
                 key={role}
                 onClick={() => setRegistrationRole(role)}
-                className={`px-4 py-2 rounded-md ${
-                  registrationRole === role
-                    ? "bg-cyan-600 text-white"
-                    : "bg-gray-700 hover:bg-gray-600"
-                }`}
+                className={`px-4 py-2 rounded-md ${registrationRole === role
+                  ? "bg-cyan-600 text-white"
+                  : "bg-gray-700 hover:bg-gray-600"
+                  }`}
               >
                 {role.charAt(0).toUpperCase() + role.slice(1)}
               </button>
@@ -100,10 +106,10 @@ export default function RegisterPage() {
                   className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
                 <input
-                  value={formData.bloodGroup}
-                  name="bloodGroup"
+                  value={formData.phoneNumber}
+                  name="phoneNumber"
                   onChange={handleChange}
-                  placeholder="Blood Group"
+                  placeholder="PhoneNumber"
                   className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
               </>
@@ -112,26 +118,26 @@ export default function RegisterPage() {
             {/* Doctor-specific fields */}
             {registrationRole === "doctor" && (
               <>
-              <input 
-                value={formData.doctname}
-                name="doctorName"
-                onChange={handleChange}
-                placeholder="Full Name"
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
-              />
+                <input
+                  value={formData.name}
+                  name="name"
+                  onChange={handleChange}
+                  placeholder="Full Name"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                />
 
                 <input
-                  value={formData.doctorId}
-                  name="doctorId"
+                  value={formData.specialization}
+                  name="specialization"
                   onChange={handleChange}
-                  placeholder="Doctor ID"
+                  placeholder="specialization"
                   className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
                 <input
-                  value={formData.hospital}
-                  name="hospital"
+                  value={formData.phoneNumber}
+                  name="phoneNumber"
                   onChange={handleChange}
-                  placeholder="Hospital Name"
+                  placeholder="PhoneNumber"
                   className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
               </>
