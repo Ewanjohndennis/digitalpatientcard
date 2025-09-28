@@ -14,25 +14,37 @@ export default function PatientDashboard() {
   const [labReport, setLabReport] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(()=>{
-    try{
-        const getdiseases = async()=>{
-            const  response = await axios.get("http://localhost:8080/patient/dashboard")
-            if(response.status>=200 && response.status<300){
-              console.log(await response.data);
-              setDiseases(response.data.diseases);
-            }
-        }
-        getdiseases();
-    }catch(e){
-      console.log(e);
+  const getdiseases = async()=>{
+      try{
+          const  response = await axios.get("http://localhost:8080/patient/dashboard")
+          if(response.status>=200 && response.status<300){
+            console.log(await response.data);
+            setDiseases(response.data.diseases);
+          }
+      }catch(e){
+        console.log(e);
+      }
     }
+
+  useEffect(()=>{
+
+    getdiseases();
 
   },[]);
 
-  const addDisease = () => {
+  const addDisease = async() => {
     if (diseaseInput) {
-      setDiseases([...diseases, { name: diseaseInput, verified: false }]);
+      //setDiseases([...diseases, { name: diseaseInput, verified: false }]);
+      const response  = await axios.post("http://localhost:8080/patient/adddisease",null,{
+        params : {
+          description : diseaseInput
+        }
+      })
+      if(response.status>=200 && response.status<300){
+        getdiseases();
+        console.log(response?.data || "Disease added ! But No response! ");
+      }
+
       setDiseaseInput("");
     }
   };
