@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const login = async (user, username, password, navigate) => {
+const login = async (user, username, password, navigate,setloading) => {
+    setloading(1);
     try {
         const response = await axios.post(`https://digital-patient-card-backend-839268888277.asia-south1.run.app/${user}/login`, null, {
             params: {
@@ -10,6 +11,7 @@ const login = async (user, username, password, navigate) => {
             }
         });
         if (response.status >= 200 && response.status < 300) {
+            setloading(0);
             navigate(`/${user}-dashboard`);
         }
     } catch (err) {

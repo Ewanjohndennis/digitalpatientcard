@@ -1,39 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
-import axios from 'axios'
 import login from "@/lib/Login";
+import LoadingModal from "@/components/spinner";
 
 export default function LoginPage() {
   const [role, setRole] = useState("patient"); // patient/doctor/admin
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loggedin, setloggedin] = useState(0);
+  const [loading,setloading] = useState(0);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     console.log("Value of e: " + e.target.value);
     if (role === "doctor") {
-      login('doctor', username, password, navigate);
+      login('doctor', username, password, navigate,setloading);
     }
     else if (role === "admin") {
-      login('admin', username, password, navigate);
+      login('admin', username, password, navigate,setloading);
     }
     else {
-      const res = login('patient', username, password, navigate);
+      const res = login('patient', username, password, navigate,setloading);
     }
   };
 
   const handleHome = () => {
-    navigate("/"); // navigate to login page
+    navigate("/"); // navigate to home page
   }
 
-  if (loggedin) {
-    navigate("/patient-dashboard");
-  } else {
-    return (
+  return (
       <div className="min-h-screen flex">
+        {loading && <LoadingModal message="Logging in..." />}
         {/* Left Section */}
         <div className="w-full lg:w-1/2 flex flex-col justify-center bg-neutral-900 text-white px-8 md:px-12 py-16">
           <div className="w-full max-w-2xl mx-auto">
@@ -105,6 +103,5 @@ export default function LoginPage() {
         </div>
       </div>
     );
-  }
 
 }
