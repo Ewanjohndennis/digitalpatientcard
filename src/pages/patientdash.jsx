@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileText, UploadCloud, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import logOut from "@/lib/logout";
+
+
 export default function PatientDashboard() {
+
   const [active, setActive] = useState("diseases");
   const [diseases, setDiseases] = useState([]);
   const [diseaseInput, setDiseaseInput] = useState("");
@@ -10,14 +14,27 @@ export default function PatientDashboard() {
   const [labReport, setLabReport] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(()=>{
+    try{
+        const getdiseases = async()=>{
+            const  response = await axios.get("http://localhost:8080/patient/dashboard")
+            if(response.status>=200 && response.status<300){
+              console.log(await response.data);
+              setDiseases(response.data.diseases);
+            }
+        }
+        getdiseases();
+    }catch(e){
+      console.log(e);
+    }
+
+  },[]);
+
   const addDisease = () => {
     if (diseaseInput) {
       setDiseases([...diseases, { name: diseaseInput, verified: false }]);
       setDiseaseInput("");
     }
-  };
-  const handleLogout = () => {
-    navigate("/login"); // navigate to login page
   };
   const handleFileChange = (e) => {
     setLabReport(e.target.files[0]);
@@ -30,12 +47,7 @@ export default function PatientDashboard() {
     { id: "settings", label: "Settings", icon: <Settings size={18} /> },
   ];
 
-  const logOut = async()=>{
-      const response = await axios.post("http://localhost:8080/patient/logout")
-      if(response.status>=200 && response.status<300){
-          navigate("/");
-      }   
-  }
+
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -55,16 +67,16 @@ export default function PatientDashboard() {
           ))}
         </nav>
         <div className="p-4 border-t border-cyan-600">
-          <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 w-full hover:bg-cyan-600 rounded-md">
-            <LogOut onClick={
-              logOut
-            } size={18} /> Logout
+          <button onClick={async()=>{await logOut('patient',navigate)}} className="flex items-center gap-2 px-3 py-2 w-full hover:bg-cyan-600 rounded-md">
+            <LogOut size={18} /> Logout
           </button>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col">
         <main className="flex-1 p-6 overflow-y-auto">
+
+          {/* section my-info */}
           {active === "my-info" && (
             <div>
               <h2 className="text-lg font-semibold mb-4">My Info</h2>
@@ -72,6 +84,7 @@ export default function PatientDashboard() {
             </div>
           )}
 
+          {/* section diseases */}
           {active === "diseases" && (
             <div>
               <h2 className="text-lg font-semibold mb-4">Diseases</h2>
@@ -85,15 +98,16 @@ export default function PatientDashboard() {
                 <button onClick={addDisease} className="px-4 py-2 bg-cyan-600 text-white rounded-md">Add</button>
               </div>
               <ul>
-                {diseases.map((d, idx) => (
-                  <li key={idx} className="mb-1">
-                    {d.name} - {d.verified ? "Verified" : "Unverified"}
+                {diseases.map((d) => (
+                  <li key={d.id} className="mb-1">
+                    {d.diseasename} - {d.status ? "Verified" : "Unverified"}
                   </li>
                 ))}
               </ul>
             </div>
           )}
 
+          {/* section lab-reports */}
           {active === "lab-reports" && (
             <div>
               <h2 className="text-lg font-semibold mb-4">Lab Reports</h2>

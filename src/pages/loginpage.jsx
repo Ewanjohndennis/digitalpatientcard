@@ -8,12 +8,11 @@ export default function LoginPage() {
   const [role, setRole] = useState("patient"); // patient/doctor/admin
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading,setloading] = useState(0);
+  const [loading,setloading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Value of e: " + e.target.value);
     if (role === "doctor") {
       login('doctor', username, password, navigate,setloading);
     }
@@ -31,6 +30,7 @@ export default function LoginPage() {
 
   return (
       <div className="min-h-screen flex">
+        {/* This line correctly renders the modal as an overlay when loading is true */}
         {loading && <LoadingModal message="Logging in..." />}
         {/* Left Section */}
         <div className="w-full lg:w-1/2 flex flex-col justify-center bg-neutral-900 text-white px-8 md:px-12 py-16">

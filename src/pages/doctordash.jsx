@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Users, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import logOut from "@/lib/logout";
+
 export default function DoctorDashboard() {
   const [active, setActive] = useState("patients");
   const [patients, setPatients] = useState([
@@ -9,9 +11,6 @@ export default function DoctorDashboard() {
   ]);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    navigate("/login"); // navigate to login page
-  };
 
   const verifyDisease = (patientIndex, diseaseIndex) => {
     const newPatients = [...patients];
@@ -42,7 +41,7 @@ export default function DoctorDashboard() {
           ))}
         </nav>
         <div className="p-4 border-t border-cyan-600">
-          <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 w-full hover:bg-cyan-600 rounded-md">
+          <button onClick={async()=>{await logOut('doctor',navigate)}} className="flex items-center gap-2 px-3 py-2 w-full hover:bg-cyan-600 rounded-md">
             <LogOut size={18} /> Logout
           </button>
         </div>
