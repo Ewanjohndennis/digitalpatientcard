@@ -21,7 +21,7 @@ const login = async (user, username, password, navigate,setloading) => {
             navigate(`/${user}-dashboard`);
         }
         console.log("Error from backend:", err.response?.data || err.message);
-        alert(err.response?.data || "Login failed");
+        alert(err.response?.data || "Login failed , Check your network connection ");
     }
 }
 
