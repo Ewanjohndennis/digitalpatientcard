@@ -1,13 +1,14 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const login = async (user, username, password, navigate,setloading) => {
+const login = async (user, username, password, navigate, setloading, adminpin = "") => {
     setloading(true);
     try {
         const response = await axios.post(`http://localhost:8080/${user}/login`, null, {
             params: {
                 username,
-                password
+                password,
+                adminpin
             }
         });
         if (response.status >= 200 && response.status < 300) {
@@ -17,7 +18,7 @@ const login = async (user, username, password, navigate,setloading) => {
         }
     } catch (err) {
         setloading(false);
-        if(err.response?.data=="Patient Already Logged in!"){
+        if (err.response?.data == "Patient Already Logged in!") {
             navigate(`/${user}-dashboard`);
         }
         console.log("Error from backend:", err.response?.data || err.message);

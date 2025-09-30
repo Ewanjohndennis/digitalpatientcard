@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Home, Users, FileText, Settings, LogOut } from "lucide-react";
+import logOut from "@/lib/logout";
 
 export default function AdminDashboard() {
   const [active, setActive] = useState("dashboard");
@@ -14,9 +15,7 @@ export default function AdminDashboard() {
     { id: "settings", label: "Settings", icon: <Settings size={18} /> },
   ];
 
-  const handleLogout = () => {
-    navigate("/login"); // navigate to login page
-  };
+
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -27,9 +26,8 @@ export default function AdminDashboard() {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${
-                active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
-              }`}
+              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
+                }`}
             >
               {item.icon} {item.label}
             </button>
@@ -37,7 +35,7 @@ export default function AdminDashboard() {
         </nav>
         <div className="p-4 border-t border-cyan-600">
           <button
-            onClick={handleLogout}
+            onClick={async () => (await logOut('admin', navigate))}
             className="flex items-center gap-2 px-3 py-2 w-full hover:bg-cyan-600 rounded-md"
           >
             <LogOut size={18} /> Logout
