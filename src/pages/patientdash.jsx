@@ -94,18 +94,25 @@ export default function PatientDashboard() {
       <div className="flex-1 flex flex-col">
         <main className="flex-1 p-8 overflow-y-auto">
           {/* My Info */}
-          {active === "my-info" && (
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">My Info</h2>
-              <div className="space-y-2 flex flex-cols">
-                <p className="text-gray-600">
-                  <span className="font-2xl text-bold">Name:</span> {patientName}
-                  <span className="font-2xl text-bold">Blood Group:</span> {bloodGroup}
-                  <span className="font-2xl text-bold">Diseases:</span> {diseases.length > 0 ? diseases.map((d) => d.diseasename).join(", ") : "None"}
-                </p>
-              </div>
-            </div>
-          )}
+         {active === "my-info" && (
+  <div className="bg-white rounded-2xl shadow p-6">
+    <h2 className="text-xl font-semibold mb-4">My Info</h2>
+    <div className="space-y-3 text-gray-700">
+      <p>
+        <span className="font-bold">Name:</span> {patientName}
+      </p>
+      <p>
+        <span className="font-bold">Blood Group:</span> {bloodGroup}
+      </p>
+      <p>
+        <span className="font-bold">Diseases:</span>{" "}
+        {diseases.length > 0
+          ? diseases.map((d) => d.diseasename).join(", ")
+          : "None"}
+      </p>
+    </div>
+  </div>
+)}
 
           {/* Diseases */}
           {active === "diseases" && (
