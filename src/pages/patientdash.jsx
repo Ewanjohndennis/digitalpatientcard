@@ -14,33 +14,33 @@ export default function PatientDashboard() {
   const [labReport, setLabReport] = useState(null);
   const navigate = useNavigate();
 
-  const getdiseases = async()=>{
-      try{
-          const  response = await axios.get("http://localhost:8080/patient/dashboard")
-          if(response.status>=200 && response.status<300){
-            console.log(await response.data);
-            setDiseases(response.data.diseases);
-          }
-      }catch(e){
-        console.log(e);
+  const getdiseases = async () => {
+    try {
+      const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/dashboard")
+      if (response.status >= 200 && response.status < 300) {
+        console.log(await response.data);
+        setDiseases(response.data.diseases);
       }
+    } catch (e) {
+      console.log(e);
     }
+  }
 
-  useEffect(()=>{
+  useEffect(() => {
 
     getdiseases();
 
-  },[]);
+  }, []);
 
-  const addDisease = async() => {
+  const addDisease = async () => {
     if (diseaseInput) {
       //setDiseases([...diseases, { name: diseaseInput, verified: false }]);
-      const response  = await axios.post("http://localhost:8080/patient/adddisease",null,{
-        params : {
-          description : diseaseInput
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/adddisease", null, {
+        params: {
+          description: diseaseInput
         }
       })
-      if(response.status>=200 && response.status<300){
+      if (response.status >= 200 && response.status < 300) {
         getdiseases();
         console.log(response?.data || "Disease added ! But No response! ");
       }
@@ -70,16 +70,15 @@ export default function PatientDashboard() {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${
-                active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
-              }`}
+              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
+                }`}
             >
               {item.icon} {item.label}
             </button>
           ))}
         </nav>
         <div className="p-4 border-t border-cyan-600">
-          <button onClick={async()=>{await logOut('patient',navigate)}} className="flex items-center gap-2 px-3 py-2 w-full hover:bg-cyan-600 rounded-md">
+          <button onClick={async () => { await logOut('patient', navigate) }} className="flex items-center gap-2 px-3 py-2 w-full hover:bg-cyan-600 rounded-md">
             <LogOut size={18} /> Logout
           </button>
         </div>
