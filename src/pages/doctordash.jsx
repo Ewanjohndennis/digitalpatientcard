@@ -82,7 +82,7 @@ export default function DoctorDashboard() {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md p-6 flex flex-col">
+      <aside className="w-64 bg-cyan-700 shadow-md p-6 flex flex-col">
         <h2 className="text-2xl font-bold mb-6">Doctor Dashboard</h2>
         <nav className="flex-1 flex flex-col space-y-3">
           {navItems.map((item) => (
@@ -90,7 +90,7 @@ export default function DoctorDashboard() {
               key={item.id}
               onClick={() => setActive(item.id)}
               className={`flex items-center gap-2 p-2 rounded-md w-full text-left transition-colors ${
-                active === item.id ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
+                active === item.id ? "bg-cyan-700 text-white" : "hover:bg-cyan-500"
               }`}
             >
               {item.icon} {item.label}
@@ -99,7 +99,7 @@ export default function DoctorDashboard() {
         </nav>
         <button
           onClick={async () => await logOut("doctor", navigate)}
-          className="mt-auto flex items-center gap-2 p-2 w-full rounded-md hover:bg-gray-100 text-red-500"
+          className="mt-auto flex items-center gap-2 p-2 w-full rounded-md hover:bg-cyan-500 text-white"
         >
           <LogOut size={18} /> Logout
         </button>
