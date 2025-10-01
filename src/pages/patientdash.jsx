@@ -97,8 +97,8 @@ export default function PatientDashboard() {
           {active === "my-info" && (
             <div className="bg-white rounded-2xl shadow p-6">
               <h2 className="text-xl font-semibold mb-4">My Info</h2>
-              <div className="space-y-2">
-                <p className="text-gray-600 flex flex-cols">
+              <div className="space-y-2 flex flex-cols">
+                <p className="text-gray-600">
                   <span className="font-2xl text-bold">Name:</span> {patientName}
                   <span className="font-2xl text-bold">Blood Group:</span> {bloodGroup}
                   <span className="font-2xl text-bold">Diseases:</span> {diseases.length > 0 ? diseases.map((d) => d.diseasename).join(", ") : "None"}
