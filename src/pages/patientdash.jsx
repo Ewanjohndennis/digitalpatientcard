@@ -99,7 +99,9 @@ export default function PatientDashboard() {
               <h2 className="text-xl font-semibold mb-4">My Info</h2>
               <div className="space-y-2">
                 <p className="text-gray-600">
-                  <span className="font-medium">Blood Group:</span> {bloodGroup}
+                  <span className="font-2xl text-bold">Name:</span> {patientname}
+                  <span className="font-2xl text-bold">Blood Group:</span> {bloodGroup}
+                  <span className="font-2xl text-bold">Diseases:</span> {diseases.length > 0 ? diseases.map((d) => d.diseasename).join(", ") : "None"}
                 </p>
               </div>
             </div>
