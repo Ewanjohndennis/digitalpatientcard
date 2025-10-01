@@ -82,7 +82,7 @@ export default function DoctorDashboard() {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-cyan-700 shadow-md p-6 flex flex-col">
+      <aside className="w-64 bg-cyan-700 text-white shadow-md p-6 flex flex-col">
         <h2 className="text-2xl font-bold mb-6">Doctor Dashboard</h2>
         <nav className="flex-1 flex flex-col space-y-3">
           {navItems.map((item) => (
