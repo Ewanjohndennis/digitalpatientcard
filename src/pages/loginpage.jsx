@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [adminpin, setadminpin] = useState("");
   const [loading, setloading] = useState(false);
   const navigate = useNavigate();
-
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     if (role === "doctor") {

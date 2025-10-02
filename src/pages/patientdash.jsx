@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { FileText, UploadCloud, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios, { all } from "axios";
 import logOut from "@/lib/logout";
+import updateprofile from "@/lib/updateprofile";
 
 export default function PatientDashboard() {
   const [active, setActive] = useState("diseases");
@@ -10,6 +11,26 @@ export default function PatientDashboard() {
   const [diseaseInput, setDiseaseInput] = useState("");
   const [bloodGroup, setBloodGroup] = useState(""); // will fetch
   const [labReport, setLabReport] = useState(null);
+
+
+  //Variables for Update Patient Profile 
+
+  const [patient, setpatient] = useState(null);
+
+
+  const [gender, setgender] = useState("");
+  const [height, setheight] = useState("");
+  const [weight, setweight] = useState("");
+  const [bloodgroup, setbloodgroup] = useState("O+");
+  const [bloodpressure, setbloodpressure] = useState("");
+  const [sugar, setsugar] = useState("");
+  const [smoking, setsmoking] = useState(false);
+  const [age, setage] = useState("");
+  // const [allergies, setallergies] = useState(""); // Manage as a string
+  // const [pastconditions, setpastconditions] = useState(""); // Manage as a string
+  const [phoneNumber, setPhoneNumber] = useState("");
+
+
 
   const [patientName, setPatientName] = useState(""); // editable
   const [username, setUsername] = useState(""); // for PDF download
@@ -33,10 +54,26 @@ export default function PatientDashboard() {
       console.error("Failed to fetch patient data:", e);
     }
   };
-
   useEffect(() => {
     getPatientData();
-  }, []);
+  }, [])
+  useEffect(() => {
+
+    if (patient) {
+      // Populate your individual state variables
+      setgender(patient.gender || "");
+      setheight(patient.height || "");
+      setweight(patient.weight || "");
+      setbloodgroup(patient.bloodgroup || "O+");
+      setbloodpressure(patient.bloodpressure || "");
+      setsugar(patient.sugar || "");
+      setsmoking(patient.smoking || false);
+      setage(patient.age || "");
+      setPhoneNumber(patient.phoneNumber || "");
+      // setallergies(patient.allergies || "");
+      // setpastconditions(patient.pastconditions || "");
+    }
+  }, [patient]);
 
   const addDisease = async () => {
     if (diseaseInput) {
@@ -105,9 +142,8 @@ export default function PatientDashboard() {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${
-                active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
-              }`}
+              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
+                }`}
             >
               {item.icon} {item.label}
             </button>
@@ -134,10 +170,10 @@ export default function PatientDashboard() {
               <h2 className="text-xl font-semibold mb-4">My Info</h2>
               <div className="space-y-3 text-gray-700">
                 <p>
-                  <span className="font-bold">Name:</span> {patientName}
+                  <span className="font-bold">Name:</span> {patient.name}
                 </p>
                 <p>
-                  <span className="font-bold">Blood Group:</span> {bloodGroup}
+                  <span className="font-bold">Blood Group:</span> {bloodgroup}
                 </p>
                 <p>
                   <span className="font-bold">Diseases:</span>{" "}
@@ -185,11 +221,10 @@ export default function PatientDashboard() {
                   >
                     <span>{d.diseasename}</span>
                     <span
-                      className={`text-sm px-2 py-1 rounded ${
-                        d.status
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
+                      className={`text-sm px-2 py-1 rounded ${d.status
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
+                        }`}
                     >
                       {d.status ? "Verified" : "Unverified"}
                     </span>
@@ -209,7 +244,8 @@ export default function PatientDashboard() {
                   <input
                     type="text"
                     placeholder="Enter your name"
-                    value={patientName}
+                    value={patient.name}
+                    readOnly
                     onChange={(e) => setPatientName(e.target.value)}
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   />
@@ -227,16 +263,103 @@ export default function PatientDashboard() {
 
                 <div>
                   <label className="block text-gray-600 mb-1">Blood Group</label>
+                  <select
+                    onChange={(e) => setbloodgroup(e.target.value)}
+                    type="dropdown"
+                    value={bloodgroup}
+                    className="w-full p-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+                  >
+                    <option value={'O+'}>O+</option>
+                    <option value={'O-'}>O-</option>
+                    <option value={'A+'}>A+</option>
+                    <option value={'A-'}>A-</option>
+                    <option value={'B+'}>B+</option>
+                    <option value={'B-'}>B-</option>
+                    <option value={'AB+'}>AB+</option>
+                    <option value={'AB-'}>AB-</option>
+                  </select>
+                </div>
+
+
+                {/* Gender */}
+                <div>
+                  <label className="block text-gray-600 mb-1">Gender</label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setgender(e.target.value)}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                  >
+                    <option value="" disabled>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                {/* Age */}
+                <div>
+                  <label className="block text-gray-600 mb-1">Age</label>
                   <input
                     type="text"
-                    value={bloodGroup}
-                    readOnly
-                    className="w-full p-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+                    placeholder="Enter your age"
+                    value={age}
+                    onChange={(e) => setage(e.target.value)}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   />
                 </div>
 
+                {/* Height */}
+                <div>
+                  <label className="block text-gray-600 mb-1">Height (cm)</label>
+                  <input
+                    type="text"
+                    placeholder="Enter height in cm"
+                    value={height}
+                    onChange={(e) => setheight((e.target.value))}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Weight */}
+                <div>
+                  <label className="block text-gray-600 mb-1">Weight (kg)</label>
+                  <input
+                    type="text"
+                    placeholder="Enter weight in kg"
+                    value={weight}
+                    onChange={(e) => setweight((e.target.value))}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Blood Pressure */}
+                <div>
+                  <label className="block text-gray-600 mb-1">Blood Pressure</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., 120/80"
+                    value={bloodpressure}
+                    onChange={(e) => setbloodpressure(e.target.value)}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Sugar Level */}
+                <div>
+                  <label className="block text-gray-600 mb-1">Sugar Level (mg/dL)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., 90 mg/dL"
+                    value={sugar}
+                    onChange={(e) => setsugar(e.target.value)}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Save Button */}
                 <button
                   onClick={async () => {
+                    // Placeholder for API call to update patient info
                     alert("Patient info updated! (placeholder)");
                   }}
                   className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition"
