@@ -10,7 +10,6 @@ export default function PatientDashboard() {
   const [diseaseInput, setDiseaseInput] = useState("");
 
   // Patient profile states
-  const [patient, setPatient] = useState(null);
   const [patientName, setPatientName] = useState("");
   const [username, setUsername] = useState("");
   const [gender, setGender] = useState("");
@@ -22,6 +21,8 @@ export default function PatientDashboard() {
   const [smoking, setSmoking] = useState(false);
   const [age, setAge] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [pastConditions, setPastConditions] = useState("");
 
   const navigate = useNavigate();
 
@@ -32,18 +33,23 @@ export default function PatientDashboard() {
         "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/dashboard"
       );
       if (response.status >= 200 && response.status < 300) {
-        setPatient(data);           // keep full object
-setPatientName(data.name);
-setUsername(data.username);
-setBloodgroup(data.bloodgroup || "O+");
-setDiseases(data.diseases || []);
-setHeight(data.height || "");
-setWeight(data.weight || "");
-setBloodpressure(data.bloodpressure || "");
-setSugar(data.sugar || "");
-setSmoking(data.smoking || false);
-setAge(data.age || "");
-setPhoneNumber(data.phoneNumber || "");
+        const data = response.data;
+
+        // Map backend data to frontend states
+        setPatientName(data.name || "");
+        setUsername(data.username || "");
+        setGender(data.gender || "");
+        setHeight(data.height || "");
+        setWeight(data.weight || "");
+        setBloodgroup(data.bloodgroup || "O+");
+        setBloodpressure(data.bloodpressure || "");
+        setSugar(data.sugar || "");
+        setSmoking(data.smoking || false);
+        setAge(data.age || "");
+        setPhoneNumber(data.phoneNumber || "");
+        setAllergies(data.allergies || "");
+        setPastConditions(data.pastconditions || "");
+        setDiseases(data.diseases || []);
       }
     } catch (e) {
       console.error("Failed to fetch patient data:", e);
@@ -53,20 +59,6 @@ setPhoneNumber(data.phoneNumber || "");
   useEffect(() => {
     getPatientData();
   }, []);
-
-  useEffect(() => {
-    if (patient) {
-      setGender(patient.gender || "");
-      setHeight(patient.height || "");
-      setWeight(patient.weight || "");
-      setBloodgroup(patient.bloodgroup || "O+");
-      setBloodpressure(patient.bloodpressure || "");
-      setSugar(patient.sugar || "");
-      setSmoking(patient.smoking || false);
-      setAge(patient.age || "");
-      setPhoneNumber(patient.phoneNumber || "");
-    }
-  }, [patient]);
 
   // Add a disease
   const addDisease = async () => {
@@ -148,31 +140,32 @@ setPhoneNumber(data.phoneNumber || "");
         <main className="flex-1 p-8 overflow-y-auto">
           {/* My Info */}
           {active === "my-info" && (
-            <div className="bg-white rounded-2xl shadow p-6">
+            <div className="bg-white rounded-2xl shadow p-6 space-y-2 text-gray-700">
               <h2 className="text-xl font-semibold mb-4">My Info</h2>
-              <div className="space-y-3 text-gray-700">
-                <p>
-                  <span className="font-bold">Name:</span> {patient?.name || "N/A"}
-                </p>
-                <p>
-                  <span className="font-bold">Blood Group:</span> {bloodgroup}
-                </p>
-                <p>
-                  <span className="font-bold">Diseases:</span>{" "}
-                  {diseases.length > 0
-                    ? diseases.map((d) => d.diseasename).join(", ")
-                    : "None"}
-                </p>
-
-                <div className="mt-4">
-                  <button
-                    onClick={downloadPDF}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
-                  >
-                    Download PDF
-                  </button>
-                </div>
-              </div>
+              <p><span className="font-bold">Name:</span> {patientName || "N/A"}</p>
+              <p><span className="font-bold">Age:</span> {age || "N/A"}</p>
+              <p><span className="font-bold">Gender:</span> {gender || "N/A"}</p>
+              <p><span className="font-bold">Height:</span> {height || "N/A"} cm</p>
+              <p><span className="font-bold">Weight:</span> {weight || "N/A"} kg</p>
+              <p><span className="font-bold">Blood Group:</span> {bloodgroup}</p>
+              <p><span className="font-bold">Blood Pressure:</span> {bloodpressure || "N/A"}</p>
+              <p><span className="font-bold">Sugar Level:</span> {sugar || "N/A"}</p>
+              <p><span className="font-bold">Smoking:</span> {smoking ? "Yes" : "No"}</p>
+              <p><span className="font-bold">Phone:</span> {phoneNumber || "N/A"}</p>
+              <p><span className="font-bold">Allergies:</span> {allergies || "None"}</p>
+              <p><span className="font-bold">Past Conditions:</span> {pastConditions || "None"}</p>
+              <p>
+                <span className="font-bold">Diseases:</span>{" "}
+                {diseases.length > 0
+                  ? diseases.map((d) => d.diseasename).join(", ")
+                  : "None"}
+              </p>
+              <button
+                onClick={downloadPDF}
+                className="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+              >
+                Download PDF
+              </button>
             </div>
           )}
 
@@ -215,142 +208,164 @@ setPhoneNumber(data.phoneNumber || "");
           )}
 
           {/* Settings */}
-          {active === "settings" && (
-            <div className="bg-white rounded-2xl shadow p-6 max-w-md">
-              <h2 className="text-xl font-semibold mb-4">Edit My Info</h2>
-              <div className="space-y-4">
-                {/* Name */}
-                <div>
-                  <label className="block text-gray-600 mb-1">Name</label>
-                  <input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={patientName}
-                    onChange={(e) => setPatientName(e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-                  />
-                </div>
+{active === "settings" && (
+  <div className="bg-white rounded-2xl shadow p-6 max-w-md space-y-4">
+    <h2 className="text-xl font-semibold mb-4">Edit My Info</h2>
 
-                {/* Username */}
-                <div>
-                  <label className="block text-gray-600 mb-1">Username</label>
-                  <input
-                    type="text"
-                    value={username}
-                    readOnly
-                    className="w-full p-2 border rounded-lg bg-gray-100 cursor-not-allowed"
-                  />
-                </div>
+    {/* Name */}
+    <div>
+      <label className="block text-gray-600 mb-1">Name</label>
+      <input
+        type="text"
+        placeholder="Enter your name"
+        value={patientName}
+        onChange={(e) => setPatientName(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      />
+    </div>
 
-                {/* Blood Group */}
-                <div>
-                  <label className="block text-gray-600 mb-1">Blood Group</label>
-                  <select
-                    onChange={(e) => setBloodgroup(e.target.value)}
-                    value={bloodgroup}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-                  >
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                  </select>
-                </div>
+    {/* Age */}
+    <div>
+      <label className="block text-gray-600 mb-1">Age</label>
+      <input
+        type="number"
+        placeholder="Enter your age"
+        value={age}
+        onChange={(e) => setAge(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      />
+    </div>
 
-                {/* Gender */}
-                <div>
-                  <label className="block text-gray-600 mb-1">Gender</label>
-                  <select
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-                  >
-                    <option value="" disabled>
-                      Select Gender
-                    </option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
+    {/* Gender */}
+    <div>
+      <label className="block text-gray-600 mb-1">Gender</label>
+      <select
+        value={gender}
+        onChange={(e) => setGender(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      >
+        <option value="" disabled>Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
 
-                {/* Age */}
-                <div>
-                  <label className="block text-gray-600 mb-1">Age</label>
-                  <input
-                    type="text"
-                    placeholder="Enter your age"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-                  />
-                </div>
+    {/* Height */}
+    <div>
+      <label className="block text-gray-600 mb-1">Height (cm)</label>
+      <input
+        type="number"
+        placeholder="Enter height in cm"
+        value={height}
+        onChange={(e) => setHeight(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      />
+    </div>
 
-                {/* Height */}
-                <div>
-                  <label className="block text-gray-600 mb-1">Height (cm)</label>
-                  <input
-                    type="text"
-                    placeholder="Enter height in cm"
-                    value={height}
-                    onChange={(e) => setHeight(e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-                  />
-                </div>
+    {/* Weight */}
+    <div>
+      <label className="block text-gray-600 mb-1">Weight (kg)</label>
+      <input
+        type="number"
+        placeholder="Enter weight in kg"
+        value={weight}
+        onChange={(e) => setWeight(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      />
+    </div>
 
-                {/* Weight */}
-                <div>
-                  <label className="block text-gray-600 mb-1">Weight (kg)</label>
-                  <input
-                    type="text"
-                    placeholder="Enter weight in kg"
-                    value={weight}
-                    onChange={(e) => setWeight(e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-                  />
-                </div>
+    {/* Blood Group (Read-only) */}
+    <div>
+      <label className="block text-gray-600 mb-1">Blood Group</label>
+      <input
+        type="text"
+        value={bloodgroup}
+        readOnly
+        className="w-full p-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+      />
+    </div>
 
-                {/* Blood Pressure */}
-                <div>
-                  <label className="block text-gray-600 mb-1">Blood Pressure</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., 120/80"
-                    value={bloodpressure}
-                    onChange={(e) => setBloodpressure(e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-                  />
-                </div>
+    {/* Blood Pressure */}
+    <div>
+      <label className="block text-gray-600 mb-1">Blood Pressure</label>
+      <input
+        type="text"
+        placeholder="e.g., 120/80"
+        value={bloodpressure}
+        onChange={(e) => setBloodpressure(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      />
+    </div>
 
-                {/* Sugar Level */}
-                <div>
-                  <label className="block text-gray-600 mb-1">Sugar Level (mg/dL)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., 90 mg/dL"
-                    value={sugar}
-                    onChange={(e) => setSugar(e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-                  />
-                </div>
+    {/* Sugar Level */}
+    <div>
+      <label className="block text-gray-600 mb-1">Sugar Level (mg/dL)</label>
+      <input
+        type="text"
+        placeholder="e.g., 90 mg/dL"
+        value={sugar}
+        onChange={(e) => setSugar(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      />
+    </div>
 
-                {/* Save Button */}
-                <button
-                  onClick={async () => {
-                    // Placeholder for API call to update patient info
-                    alert("Patient info updated! (placeholder)");
-                  }}
-                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          )}
+    {/* Smoking */}
+    <div className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        checked={smoking}
+        onChange={(e) => setSmoking(e.target.checked)}
+      />
+      <label>Smoking</label>
+    </div>
+
+    {/* Phone Number */}
+    <div>
+      <label className="block text-gray-600 mb-1">Phone Number</label>
+      <input
+        type="text"
+        placeholder="Enter phone number"
+        value={phoneNumber}
+        onChange={(e) => setPhoneNumber(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      />
+    </div>
+
+    {/* Allergies */}
+    <div>
+      <label className="block text-gray-600 mb-1">Allergies</label>
+      <input
+        type="text"
+        placeholder="Enter allergies"
+        value={allergies}
+        onChange={(e) => setAllergies(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      />
+    </div>
+
+    {/* Past Conditions */}
+    <div>
+      <label className="block text-gray-600 mb-1">Past Conditions</label>
+      <input
+        type="text"
+        placeholder="Enter past medical conditions"
+        value={pastConditions}
+        onChange={(e) => setPastConditions(e.target.value)}
+        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+      />
+    </div>
+
+    {/* Save Button */}
+    <button
+      onClick={() => alert("Patient info updated! (placeholder)")}
+      className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition"
+    >
+      Save Changes
+    </button>
+  </div>
+)}
+
         </main>
       </div>
     </div>
