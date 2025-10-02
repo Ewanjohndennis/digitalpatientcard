@@ -8,47 +8,53 @@ export default function PatientDashboard() {
   const [active, setActive] = useState("diseases");
   const [diseases, setDiseases] = useState([]);
   const [diseaseInput, setDiseaseInput] = useState("");
-  const [bloodGroup] = useState("O-");
+  const [bloodGroup, setBloodGroup] = useState(""); // will fetch
   const [labReport, setLabReport] = useState(null);
 
   const [patientName, setPatientName] = useState(""); // editable
-  const [phoneNumber, setPhoneNumber] = useState(""); // editable
+  const [username, setUsername] = useState(""); // for PDF download
 
   const navigate = useNavigate();
 
-  const getdiseases = async () => {
+  // Fetch patient info from remote host
+  const getPatientData = async () => {
     try {
       const response = await axios.get(
         "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/dashboard"
       );
       if (response.status >= 200 && response.status < 300) {
-        console.log(await response.data);
-        setDiseases(response.data.diseases);
+        const data = response.data;
+        setPatientName(data.name);
+        setUsername(data.username); // save username for PDF
+        setBloodGroup(data.bloodgroup || "O-");
+        setDiseases(data.diseases || []);
       }
     } catch (e) {
-      console.log(e);
+      console.error("Failed to fetch patient data:", e);
     }
   };
 
   useEffect(() => {
-    getdiseases();
+    getPatientData();
   }, []);
 
   const addDisease = async () => {
     if (diseaseInput) {
-      const response = await axios.post(
-        "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/adddisease",
-        null,
-        {
-          params: {
-            description: diseaseInput,
-          },
+      try {
+        const response = await axios.post(
+          "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/adddisease",
+          null,
+          {
+            params: { description: diseaseInput },
+          }
+        );
+        if (response.status >= 200 && response.status < 300) {
+          getPatientData();
         }
-      );
-      if (response.status >= 200 && response.status < 300) {
-        getdiseases();
+        setDiseaseInput("");
+      } catch (e) {
+        console.error("Failed to add disease:", e);
       }
-      setDiseaseInput("");
     }
   };
 
@@ -56,10 +62,34 @@ export default function PatientDashboard() {
     setLabReport(e.target.files[0]);
   };
 
+  const downloadPDF = async () => {
+    if (!username) return alert("Username not available");
+
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/download/patient-pdf`,
+        {
+          params: { username }, // send username to local backend
+          responseType: "blob",
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "patient.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error("Failed to download PDF:", err);
+      alert("Failed to download PDF");
+    }
+  };
+
   const navItems = [
     { id: "my-info", label: "My Info", icon: <FileText size={18} /> },
     { id: "diseases", label: "Diseases", icon: <FileText size={18} /> },
-    { id: "lab-reports", label: "Lab Reports", icon: <UploadCloud size={18} /> },
     { id: "settings", label: "Settings", icon: <Settings size={18} /> },
   ];
 
@@ -115,6 +145,16 @@ export default function PatientDashboard() {
                     ? diseases.map((d) => d.diseasename).join(", ")
                     : "None"}
                 </p>
+
+                {/* Download PDF Button */}
+                <div className="mt-4">
+                  <button
+                    onClick={downloadPDF}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+                  >
+                    Download PDF
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -159,37 +199,11 @@ export default function PatientDashboard() {
             </div>
           )}
 
-          {/* Lab Reports */}
-          {active === "lab-reports" && (
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">Lab Reports</h2>
-              <div className="flex flex-col items-start space-y-3">
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  className="block w-full text-sm text-gray-600
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-lg file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-cyan-600 file:text-white
-                    hover:file:bg-cyan-700"
-                />
-                {labReport && (
-                  <p className="text-gray-700 text-sm">
-                    Uploaded:{" "}
-                    <span className="font-medium">{labReport.name}</span>
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Settings */}
           {active === "settings" && (
             <div className="bg-white rounded-2xl shadow p-6 max-w-md">
               <h2 className="text-xl font-semibold mb-4">Edit My Info</h2>
               <div className="space-y-4">
-                {/* Name */}
                 <div>
                   <label className="block text-gray-600 mb-1">Name</label>
                   <input
@@ -201,19 +215,16 @@ export default function PatientDashboard() {
                   />
                 </div>
 
-                {/* Phone Number */}
                 <div>
-                  <label className="block text-gray-600 mb-1">Phone Number</label>
+                  <label className="block text-gray-600 mb-1">Username</label>
                   <input
                     type="text"
-                    placeholder="Enter your phone number"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                    value={username}
+                    readOnly
+                    className="w-full p-2 border rounded-lg bg-gray-100 cursor-not-allowed"
                   />
                 </div>
 
-                {/* Blood Group */}
                 <div>
                   <label className="block text-gray-600 mb-1">Blood Group</label>
                   <input
@@ -224,10 +235,8 @@ export default function PatientDashboard() {
                   />
                 </div>
 
-                {/* Save Button */}
                 <button
                   onClick={async () => {
-                    // Placeholder for API call to update patient info
                     alert("Patient info updated! (placeholder)");
                   }}
                   className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition"
