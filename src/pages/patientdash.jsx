@@ -1,116 +1,99 @@
 import { useEffect, useState } from "react";
-import { FileText, UploadCloud, Settings, LogOut } from "lucide-react";
+import { FileText, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios, { all } from "axios";
+import axios from "axios";
 import logOut from "@/lib/logout";
-import updateprofile from "@/lib/updateprofile";
 
 export default function PatientDashboard() {
   const [active, setActive] = useState("diseases");
   const [diseases, setDiseases] = useState([]);
   const [diseaseInput, setDiseaseInput] = useState("");
-  const [bloodGroup, setBloodGroup] = useState(""); // will fetch
-  const [labReport, setLabReport] = useState(null);
 
-
-  //Variables for Update Patient Profile 
-
-  const [patient, setpatient] = useState(null);
-
-
-  const [gender, setgender] = useState("");
-  const [height, setheight] = useState("");
-  const [weight, setweight] = useState("");
-  const [bloodgroup, setbloodgroup] = useState("O+");
-  const [bloodpressure, setbloodpressure] = useState("");
-  const [sugar, setsugar] = useState("");
-  const [smoking, setsmoking] = useState(false);
-  const [age, setage] = useState("");
-  // const [allergies, setallergies] = useState(""); // Manage as a string
-  // const [pastconditions, setpastconditions] = useState(""); // Manage as a string
+  // Patient profile states
+  const [patient, setPatient] = useState(null);
+  const [patientName, setPatientName] = useState("");
+  const [username, setUsername] = useState("");
+  const [gender, setGender] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [bloodgroup, setBloodgroup] = useState("O+");
+  const [bloodpressure, setBloodpressure] = useState("");
+  const [sugar, setSugar] = useState("");
+  const [smoking, setSmoking] = useState(false);
+  const [age, setAge] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-
-
-
-  const [patientName, setPatientName] = useState(""); // editable
-  const [username, setUsername] = useState(""); // for PDF download
 
   const navigate = useNavigate();
 
-  // Fetch patient info from remote host
+  // Fetch patient data
   const getPatientData = async () => {
     try {
       const response = await axios.get(
         "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/dashboard"
       );
       if (response.status >= 200 && response.status < 300) {
-        const data = response.data;
-        setPatientName(data.name);
-        setUsername(data.username); // save username for PDF
-        setBloodGroup(data.bloodgroup || "O-");
-        setDiseases(data.diseases || []);
+        setPatient(data);           // keep full object
+setPatientName(data.name);
+setUsername(data.username);
+setBloodgroup(data.bloodgroup || "O+");
+setDiseases(data.diseases || []);
+setHeight(data.height || "");
+setWeight(data.weight || "");
+setBloodpressure(data.bloodpressure || "");
+setSugar(data.sugar || "");
+setSmoking(data.smoking || false);
+setAge(data.age || "");
+setPhoneNumber(data.phoneNumber || "");
       }
     } catch (e) {
       console.error("Failed to fetch patient data:", e);
     }
   };
+
   useEffect(() => {
     getPatientData();
-  }, [])
-  useEffect(() => {
+  }, []);
 
+  useEffect(() => {
     if (patient) {
-      // Populate your individual state variables
-      setgender(patient.gender || "");
-      setheight(patient.height || "");
-      setweight(patient.weight || "");
-      setbloodgroup(patient.bloodgroup || "O+");
-      setbloodpressure(patient.bloodpressure || "");
-      setsugar(patient.sugar || "");
-      setsmoking(patient.smoking || false);
-      setage(patient.age || "");
+      setGender(patient.gender || "");
+      setHeight(patient.height || "");
+      setWeight(patient.weight || "");
+      setBloodgroup(patient.bloodgroup || "O+");
+      setBloodpressure(patient.bloodpressure || "");
+      setSugar(patient.sugar || "");
+      setSmoking(patient.smoking || false);
+      setAge(patient.age || "");
       setPhoneNumber(patient.phoneNumber || "");
-      // setallergies(patient.allergies || "");
-      // setpastconditions(patient.pastconditions || "");
     }
   }, [patient]);
 
+  // Add a disease
   const addDisease = async () => {
-    if (diseaseInput) {
-      try {
-        const response = await axios.post(
-          "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/adddisease",
-          null,
-          {
-            params: { description: diseaseInput },
-          }
-        );
-        if (response.status >= 200 && response.status < 300) {
-          getPatientData();
-        }
-        setDiseaseInput("");
-      } catch (e) {
-        console.error("Failed to add disease:", e);
-      }
+    if (!diseaseInput) return;
+
+    try {
+      const response = await axios.post(
+        "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/adddisease",
+        null,
+        { params: { description: diseaseInput } }
+      );
+      if (response.status >= 200 && response.status < 300) getPatientData();
+      setDiseaseInput("");
+    } catch (e) {
+      console.error("Failed to add disease:", e);
     }
   };
 
-  const handleFileChange = (e) => {
-    setLabReport(e.target.files[0]);
-  };
-
+  // Download PDF
   const downloadPDF = async () => {
     if (!username) return alert("Username not available");
 
     try {
-      const response = await axios.get(
-        `http://localhost:8080/download/patient-pdf`,
-        {
-          params: { username }, // send username to local backend
-          responseType: "blob",
-        }
-      );
-
+      const response = await axios.get(`http://localhost:8080/download/patient-pdf`, {
+        params: { username },
+        responseType: "blob",
+      });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -142,8 +125,9 @@ export default function PatientDashboard() {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
-                }`}
+              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${
+                active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
+              }`}
             >
               {item.icon} {item.label}
             </button>
@@ -151,9 +135,7 @@ export default function PatientDashboard() {
         </nav>
         <div className="p-4 border-t border-cyan-600">
           <button
-            onClick={async () => {
-              await logOut("patient", navigate);
-            }}
+            onClick={async () => await logOut("patient", navigate)}
             className="flex items-center gap-2 px-3 py-2 w-full hover:bg-cyan-600 rounded-md"
           >
             <LogOut size={18} /> Logout
@@ -170,7 +152,7 @@ export default function PatientDashboard() {
               <h2 className="text-xl font-semibold mb-4">My Info</h2>
               <div className="space-y-3 text-gray-700">
                 <p>
-                  <span className="font-bold">Name:</span> {patient.name}
+                  <span className="font-bold">Name:</span> {patient?.name || "N/A"}
                 </p>
                 <p>
                   <span className="font-bold">Blood Group:</span> {bloodgroup}
@@ -182,7 +164,6 @@ export default function PatientDashboard() {
                     : "None"}
                 </p>
 
-                {/* Download PDF Button */}
                 <div className="mt-4">
                   <button
                     onClick={downloadPDF}
@@ -221,10 +202,9 @@ export default function PatientDashboard() {
                   >
                     <span>{d.diseasename}</span>
                     <span
-                      className={`text-sm px-2 py-1 rounded ${d.status
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                        }`}
+                      className={`text-sm px-2 py-1 rounded ${
+                        d.status ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                      }`}
                     >
                       {d.status ? "Verified" : "Unverified"}
                     </span>
@@ -239,18 +219,19 @@ export default function PatientDashboard() {
             <div className="bg-white rounded-2xl shadow p-6 max-w-md">
               <h2 className="text-xl font-semibold mb-4">Edit My Info</h2>
               <div className="space-y-4">
+                {/* Name */}
                 <div>
                   <label className="block text-gray-600 mb-1">Name</label>
                   <input
                     type="text"
                     placeholder="Enter your name"
-                    value={patient.name}
-                    readOnly
+                    value={patientName}
                     onChange={(e) => setPatientName(e.target.value)}
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   />
                 </div>
 
+                {/* Username */}
                 <div>
                   <label className="block text-gray-600 mb-1">Username</label>
                   <input
@@ -261,35 +242,36 @@ export default function PatientDashboard() {
                   />
                 </div>
 
+                {/* Blood Group */}
                 <div>
                   <label className="block text-gray-600 mb-1">Blood Group</label>
                   <select
-                    onChange={(e) => setbloodgroup(e.target.value)}
-                    type="dropdown"
+                    onChange={(e) => setBloodgroup(e.target.value)}
                     value={bloodgroup}
-                    className="w-full p-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   >
-                    <option value={'O+'}>O+</option>
-                    <option value={'O-'}>O-</option>
-                    <option value={'A+'}>A+</option>
-                    <option value={'A-'}>A-</option>
-                    <option value={'B+'}>B+</option>
-                    <option value={'B-'}>B-</option>
-                    <option value={'AB+'}>AB+</option>
-                    <option value={'AB-'}>AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
                   </select>
                 </div>
-
 
                 {/* Gender */}
                 <div>
                   <label className="block text-gray-600 mb-1">Gender</label>
                   <select
                     value={gender}
-                    onChange={(e) => setgender(e.target.value)}
+                    onChange={(e) => setGender(e.target.value)}
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   >
-                    <option value="" disabled>Select Gender</option>
+                    <option value="" disabled>
+                      Select Gender
+                    </option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
@@ -303,7 +285,7 @@ export default function PatientDashboard() {
                     type="text"
                     placeholder="Enter your age"
                     value={age}
-                    onChange={(e) => setage(e.target.value)}
+                    onChange={(e) => setAge(e.target.value)}
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   />
                 </div>
@@ -315,7 +297,7 @@ export default function PatientDashboard() {
                     type="text"
                     placeholder="Enter height in cm"
                     value={height}
-                    onChange={(e) => setheight((e.target.value))}
+                    onChange={(e) => setHeight(e.target.value)}
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   />
                 </div>
@@ -327,7 +309,7 @@ export default function PatientDashboard() {
                     type="text"
                     placeholder="Enter weight in kg"
                     value={weight}
-                    onChange={(e) => setweight((e.target.value))}
+                    onChange={(e) => setWeight(e.target.value)}
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   />
                 </div>
@@ -339,7 +321,7 @@ export default function PatientDashboard() {
                     type="text"
                     placeholder="e.g., 120/80"
                     value={bloodpressure}
-                    onChange={(e) => setbloodpressure(e.target.value)}
+                    onChange={(e) => setBloodpressure(e.target.value)}
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   />
                 </div>
@@ -351,7 +333,7 @@ export default function PatientDashboard() {
                     type="text"
                     placeholder="e.g., 90 mg/dL"
                     value={sugar}
-                    onChange={(e) => setsugar(e.target.value)}
+                    onChange={(e) => setSugar(e.target.value)}
                     className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                   />
                 </div>
