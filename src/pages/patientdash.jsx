@@ -18,11 +18,12 @@ export default function PatientDashboard() {
 
   const getdiseases = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/patient/dashboard");
+      const response = await axios.get(
+        "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/dashboard"
+      );
       if (response.status >= 200 && response.status < 300) {
+        console.log(await response.data);
         setDiseases(response.data.diseases);
-        setPatientName(response.data.name || ""); // optional: fetch from backend
-        setPhoneNumber(response.data.phone || ""); // optional: fetch from backend
       }
     } catch (e) {
       console.log(e);
@@ -36,9 +37,13 @@ export default function PatientDashboard() {
   const addDisease = async () => {
     if (diseaseInput) {
       const response = await axios.post(
-        "http://localhost:8080/patient/adddisease",
+        "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/adddisease",
         null,
-        { params: { description: diseaseInput } }
+        {
+          params: {
+            description: diseaseInput,
+          },
+        }
       );
       if (response.status >= 200 && response.status < 300) {
         getdiseases();
@@ -94,25 +99,25 @@ export default function PatientDashboard() {
       <div className="flex-1 flex flex-col">
         <main className="flex-1 p-8 overflow-y-auto">
           {/* My Info */}
-         {active === "my-info" && (
-  <div className="bg-white rounded-2xl shadow p-6">
-    <h2 className="text-xl font-semibold mb-4">My Info</h2>
-    <div className="space-y-3 text-gray-700">
-      <p>
-        <span className="font-bold">Name:</span> {patientName}
-      </p>
-      <p>
-        <span className="font-bold">Blood Group:</span> {bloodGroup}
-      </p>
-      <p>
-        <span className="font-bold">Diseases:</span>{" "}
-        {diseases.length > 0
-          ? diseases.map((d) => d.diseasename).join(", ")
-          : "None"}
-      </p>
-    </div>
-  </div>
-)}
+          {active === "my-info" && (
+            <div className="bg-white rounded-2xl shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">My Info</h2>
+              <div className="space-y-3 text-gray-700">
+                <p>
+                  <span className="font-bold">Name:</span> {patientName}
+                </p>
+                <p>
+                  <span className="font-bold">Blood Group:</span> {bloodGroup}
+                </p>
+                <p>
+                  <span className="font-bold">Diseases:</span>{" "}
+                  {diseases.length > 0
+                    ? diseases.map((d) => d.diseasename).join(", ")
+                    : "None"}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Diseases */}
           {active === "diseases" && (
@@ -171,7 +176,8 @@ export default function PatientDashboard() {
                 />
                 {labReport && (
                   <p className="text-gray-700 text-sm">
-                    Uploaded: <span className="font-medium">{labReport.name}</span>
+                    Uploaded:{" "}
+                    <span className="font-medium">{labReport.name}</span>
                   </p>
                 )}
               </div>
