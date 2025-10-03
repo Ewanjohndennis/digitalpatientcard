@@ -13,7 +13,7 @@ export default function AdminDashboard() {
   // Fetch patients from backend
   const getPatients = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/admin/patients"); // placeholder URL
+      const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/patients"); // placeholder URL
       if (response.status >= 200 && response.status < 300) {
         setPatients(response.data);
       }
@@ -70,9 +70,8 @@ export default function AdminDashboard() {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`flex items-center gap-2 p-2 rounded-md w-full text-left transition-colors ${
-                active === item.id ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
-              }`}
+              className={`flex items-center gap-2 p-2 rounded-md w-full text-left transition-colors ${active === item.id ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
+                }`}
             >
               {item.icon} {item.label}
             </button>

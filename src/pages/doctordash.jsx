@@ -11,10 +11,9 @@ export default function DoctorDashboard() {
 
   const [doctorDetails, setDoctorDetails] = useState(null);
   const [editMode, setEditMode] = useState(false);
-  const [referral, setReferral] = useState({ name: "", specialization: "", email: "" });
+  const [referral, setReferral] = useState({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
   const [patientusername, setpatientusername] = useState("");
   const [patients, setpatients] = useState([]);
-  const [patient, setpatient] = useState(null);
 
 
 
@@ -34,7 +33,7 @@ export default function DoctorDashboard() {
 
   const findpatients = async () => {
     try {
-      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/all");
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/patients/all");
       if (response.status >= 200 && response.status < 300) {
         console.log(await response.data);
         setpatients(response.data);
@@ -54,16 +53,6 @@ export default function DoctorDashboard() {
 
   }, [])
 
-  const findpatient = async () => {
-    const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/search", null, {
-      params: {
-        patientusername: searchTerm
-      }
-    })
-    if (response.status >= 200 && response.status < 300) {
-      setpatient(response.data);
-    }
-  }
 
 
 
@@ -87,11 +76,12 @@ export default function DoctorDashboard() {
     try {
       const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/verify", null, {
         params: {
-          patientId: Number(patientId),
+          patientId: patientId,
           diseaseid: diseaseid
         }
       });
       if (response.status >= 200 && response.status < 300) {
+        console.log(response.data);
         findpatients();
       }
     } catch (e) {
@@ -106,7 +96,22 @@ export default function DoctorDashboard() {
     alert("Doctor details updated (placeholder)");
   };
 
-  const handleReferralSubmit = () => {
+  const handleReferralSubmit = async () => {
+    try {
+
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/refer", null, {
+        params: {
+          patientusername: patientusername,
+          referredDoctorUsername: referredDoctorUsername,
+          remarks: remarks
+        }
+      });
+      console.log(await response.data);
+
+    } catch (e) {
+      console.log(e.response?.data || "Error Refering doctor!");
+    }
+
     alert(
       `Doctor referred:\nName: ${referral.name}\nSpecialization: ${referral.specialization}\nEmail: ${referral.email}`
     );
@@ -154,7 +159,7 @@ export default function DoctorDashboard() {
             <h3 className="text-xl font-semibold mb-4">Assigned Patients</h3>
             <input
               type="text"
-              placeholder="Search patients by name or ID..."
+              placeholder="Search patients by username "
               className="w-full mb-4 p-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -296,7 +301,7 @@ export default function DoctorDashboard() {
           <div className="max-w-md bg-white p-6 rounded-lg shadow-md border">
             <h3 className="text-xl font-semibold mb-4">Refer a Doctor</h3>
             <div className="space-y-3">
-              {["name", "specialization", "email"].map((field) => (
+              {["name", "referredDoctorUsername", "patientusername", "remarks"].map((field) => (
                 <input
                   key={field}
                   type={field === "email" ? "email" : "text"}
