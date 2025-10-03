@@ -13,6 +13,7 @@ export default function DoctorDashboard() {
   const [editMode, setEditMode] = useState(false);
   const [referral, setReferral] = useState({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
   const [patients, setpatients] = useState([]);
+  const [doctors, setDoctors] = useState([]);
 
 
 
@@ -41,29 +42,27 @@ export default function DoctorDashboard() {
       console.log(e.response?.data || "Error fetching patients!!");
     }
   }
+
+  const getDoctors = async () => {
+    try {
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all"); // placeholder URL
+      if (response.status >= 200 && response.status < 300) {
+        setDoctors(response.data);
+      }
+    } catch (e) {
+      console.log("Error fetching doctors:", e);
+    }
+  };
+
   useEffect(() => {
     findpatients();
-
-
   }, [])
+
   useEffect(() => {
     doctordashboard();
-
-
   }, [])
 
 
-
-
-  const reports = [
-    { id: "R001", title: "Blood Test - John", file: "#" },
-    { id: "R002", title: "X-Ray - Jane", file: "#" },
-  ];
-
-  const appointments = [
-    { id: "A001", patientName: "John Doe", date: "2025-10-02T10:00:00" },
-    { id: "A002", patientName: "Jane Smith", date: "2025-10-03T14:30:00" },
-  ];
 
   const filteredPatients = patients.filter(
     (p) =>
