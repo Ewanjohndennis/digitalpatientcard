@@ -13,9 +13,10 @@ export default function AdminDashboard() {
   // Fetch patients from backend
   const getPatients = async () => {
     try {
-      const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/patients"); // placeholder URL
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/patients/all"); // placeholder URL
       if (response.status >= 200 && response.status < 300) {
         setPatients(response.data);
+        console.log(response.data);
       }
     } catch (e) {
       console.log("Error fetching patients:", e);
@@ -25,7 +26,7 @@ export default function AdminDashboard() {
   // Fetch doctors from backend
   const getDoctors = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/admin/doctors"); // placeholder URL
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all"); // placeholder URL
       if (response.status >= 200 && response.status < 300) {
         setDoctors(response.data);
       }
@@ -35,15 +36,29 @@ export default function AdminDashboard() {
   };
 
   // Delete patient via backend
-  const deletePatient = async (id) => {
-    if (!window.confirm(`Are you sure you want to delete patient ${id}?`)) return;
+  const deleteDoctor = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete doctor ${name}?`)) return;
     try {
-      const response = await axios.delete(`http://localhost:8080/admin/patients/${id}`); // placeholder
+      const response = await axios.delete(`https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctor/${id}`); // placeholder
       if (response.status >= 200 && response.status < 300) {
-        setPatients(patients.filter((p) => p.id !== id));
+        getDoctors();
+        alert("Doctor Deleted SuccessFully !");
       }
     } catch (e) {
-      console.log("Error deleting patient:", e);
+      console.log("Error deleting doctor:", e.message || e.response?.data);
+    }
+  };
+
+  const deletePatient = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete patient ${name}?`)) return;
+    try {
+      const response = await axios.delete(`https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/patient/${id}`); // placeholder
+      if (response.status >= 200 && response.status < 300) {
+        getPatients();
+        alert("Patient Deleted SuccessFully !");
+      }
+    } catch (e) {
+      console.log("Error deleting patient:", e.response?.data || e.message);
     }
   };
 
@@ -106,13 +121,10 @@ export default function AdminDashboard() {
                     <p className="font-medium text-lg">{p.name}</p>
                     <p className="text-sm text-gray-500">ID: {p.id}</p>
                     <p className="text-sm text-gray-500">Age: {p.age}</p>
-                    <p className="text-sm text-gray-500">Blood Group: {p.bloodGroup}</p>
-                    <p className="text-sm text-gray-500 mb-2">
-                      Diseases: {p.diseases?.join(", ")}
-                    </p>
+                    <p className="text-sm text-gray-500">Blood Group: {p.bloodgroup}</p>
                     <button
                       className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-400"
-                      onClick={() => deletePatient(p.id)}
+                      onClick={() => deletePatient(p.id, p.name)}
                     >
                       Delete Patient
                     </button>
@@ -135,8 +147,14 @@ export default function AdminDashboard() {
                   <div key={d.id} className="p-4 bg-white rounded-lg shadow border">
                     <p className="font-medium text-lg">{d.name}</p>
                     <p className="text-sm text-gray-500">ID: {d.id}</p>
-                    <p className="text-sm text-gray-500">Specialization: {d.specialization}</p>
-                    <p className="text-sm text-gray-500">Email: {d.email}</p>
+                    <p className="text-sm text-gray-500">Specialization: {d.specialization ? d.specialization : "No Specialization Found"}</p>
+                    <p className="text-sm text-gray-500">Email: {d.email ? d.email : "No Email Found"}</p>
+                    <button
+                      className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-400"
+                      onClick={() => deleteDoctor(d.id, d.name)}
+                    >
+                      Delete Doctor
+                    </button>
                   </div>
                 ))}
               </div>

@@ -12,7 +12,6 @@ export default function DoctorDashboard() {
   const [doctorDetails, setDoctorDetails] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [referral, setReferral] = useState({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
-  const [patientusername, setpatientusername] = useState("");
   const [patients, setpatients] = useState([]);
 
 
