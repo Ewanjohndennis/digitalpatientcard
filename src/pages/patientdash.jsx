@@ -3,6 +3,7 @@ import { FileText, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import logOut from "@/lib/logout";
+import updateprofile from "@/lib/updateprofile";
 
 export default function PatientDashboard() {
   const [active, setActive] = useState("diseases");
@@ -117,9 +118,8 @@ export default function PatientDashboard() {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${
-                active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
-              }`}
+              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
+                }`}
             >
               {item.icon} {item.label}
             </button>
@@ -195,9 +195,8 @@ export default function PatientDashboard() {
                   >
                     <span>{d.diseasename}</span>
                     <span
-                      className={`text-sm px-2 py-1 rounded ${
-                        d.status ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
-                      }`}
+                      className={`text-sm px-2 py-1 rounded ${d.status ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                        }`}
                     >
                       {d.status ? "Verified" : "Unverified"}
                     </span>
@@ -208,163 +207,163 @@ export default function PatientDashboard() {
           )}
 
           {/* Settings */}
-{active === "settings" && (
-  <div className="bg-white rounded-2xl shadow p-6 max-w-md space-y-4">
-    <h2 className="text-xl font-semibold mb-4">Edit My Info</h2>
+          {active === "settings" && (
+            <div className="bg-white rounded-2xl shadow p-6 max-w-md space-y-4">
+              <h2 className="text-xl font-semibold mb-4">Edit My Info</h2>
 
-    {/* Name */}
-    <div>
-      <label className="block text-gray-600 mb-1">Name</label>
-      <input
-        type="text"
-        placeholder="Enter your name"
-        value={patientName}
-        onChange={(e) => setPatientName(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div>
+              {/* Name */}
+              <div>
+                <label className="block text-gray-600 mb-1">Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={patientName}
+                  onChange={(e) => setPatientName(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                />
+              </div>
 
-    {/* Age */}
-    <div>
-      <label className="block text-gray-600 mb-1">Age</label>
-      <input
-        type="number"
-        placeholder="Enter your age"
-        value={age}
-        onChange={(e) => setAge(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div>
+              {/* Age */}
+              <div>
+                <label className="block text-gray-600 mb-1">Age</label>
+                <input
+                  type="number"
+                  placeholder="Enter your age"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                />
+              </div>
 
-    {/* Gender */}
-    <div>
-      <label className="block text-gray-600 mb-1">Gender</label>
-      <select
-        value={gender}
-        onChange={(e) => setGender(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      >
-        <option value="" disabled>Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-      </select>
-    </div>
+              {/* Gender */}
+              <div>
+                <label className="block text-gray-600 mb-1">Gender</label>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                >
+                  <option value="" disabled>Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
 
-    {/* Height */}
-    <div>
-      <label className="block text-gray-600 mb-1">Height (cm)</label>
-      <input
-        type="number"
-        placeholder="Enter height in cm"
-        value={height}
-        onChange={(e) => setHeight(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div>
+              {/* Height */}
+              <div>
+                <label className="block text-gray-600 mb-1">Height (cm)</label>
+                <input
+                  type="number"
+                  placeholder="Enter height in cm"
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                />
+              </div>
 
-    {/* Weight */}
-    <div>
-      <label className="block text-gray-600 mb-1">Weight (kg)</label>
-      <input
-        type="number"
-        placeholder="Enter weight in kg"
-        value={weight}
-        onChange={(e) => setWeight(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div>
+              {/* Weight */}
+              <div>
+                <label className="block text-gray-600 mb-1">Weight (kg)</label>
+                <input
+                  type="number"
+                  placeholder="Enter weight in kg"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                />
+              </div>
 
-    {/* Blood Group (Read-only) */}
-    <div>
-      <label className="block text-gray-600 mb-1">Blood Group</label>
-      <input
-        type="text"
-        value={bloodgroup}
-        readOnly
-        className="w-full p-2 border rounded-lg bg-gray-100 cursor-not-allowed"
-      />
-    </div>
+              {/* Blood Pressure */}
+              <div>
+                <label className="block text-gray-600 mb-1">Blood Pressure</label>
+                <input
+                  type="text"
+                  placeholder="e.g., 120/80"
+                  value={bloodpressure}
+                  onChange={(e) => setBloodpressure(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                />
+              </div>
+              {/* BloodGroup */}
+              <div>
+                <label className="block text-gray-600 mb-1">Blood Group</label>
+                <select
+                  onChange={(e) => setBloodgroup(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                >
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                </select>
+              </div>
 
-    {/* Blood Pressure */}
-    <div>
-      <label className="block text-gray-600 mb-1">Blood Pressure</label>
-      <input
-        type="text"
-        placeholder="e.g., 120/80"
-        value={bloodpressure}
-        onChange={(e) => setBloodpressure(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div>
+              {/* Sugar Level */}
+              <div>
+                <label className="block text-gray-600 mb-1">Sugar Level (mg/dL)</label>
+                <input
+                  type="text"
+                  placeholder="e.g., 90 mg/dL"
+                  value={sugar}
+                  onChange={(e) => setSugar(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                />
+              </div>
 
-    {/* Sugar Level */}
-    <div>
-      <label className="block text-gray-600 mb-1">Sugar Level (mg/dL)</label>
-      <input
-        type="text"
-        placeholder="e.g., 90 mg/dL"
-        value={sugar}
-        onChange={(e) => setSugar(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div>
+              {/* Smoking */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={smoking}
+                  onChange={(e) => setSmoking(e.target.checked)}
+                />
+                <label>Smoking</label>
+              </div>
 
-    {/* Smoking */}
-    <div className="flex items-center gap-2">
-      <input
-        type="checkbox"
-        checked={smoking}
-        onChange={(e) => setSmoking(e.target.checked)}
-      />
-      <label>Smoking</label>
-    </div>
+              {/* Phone Number */}
+              <div>
+                <label className="block text-gray-600 mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  placeholder="Enter phone number"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                />
+              </div>
 
-    {/* Phone Number */}
-    <div>
-      <label className="block text-gray-600 mb-1">Phone Number</label>
-      <input
-        type="text"
-        placeholder="Enter phone number"
-        value={phoneNumber}
-        onChange={(e) => setPhoneNumber(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div>
 
-    {/* Allergies */}
-    <div>
-      <label className="block text-gray-600 mb-1">Allergies</label>
-      <input
-        type="text"
-        placeholder="Enter allergies"
-        value={allergies}
-        onChange={(e) => setAllergies(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div>
 
-    {/* Past Conditions */}
-    <div>
-      <label className="block text-gray-600 mb-1">Past Conditions</label>
-      <input
-        type="text"
-        placeholder="Enter past medical conditions"
-        value={pastConditions}
-        onChange={(e) => setPastConditions(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div>
+              {/* Save Button */}
+              <button
+                onClick={async () => {
+                  const data = {
 
-    {/* Save Button */}
-    <button
-      onClick={() => alert("Patient info updated! (placeholder)")}
-      className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition"
-    >
-      Save Changes
-    </button>
-  </div>
-)}
+                    "gender": gender,
+                    "height": parseInt(height) || 0,
+                    "weight": parseInt(weight) || 0,
+                    "bloodgroup": bloodgroup,
+                    "bloodpressure": bloodpressure,
+                    "sugar": sugar,
+                    "smoking": smoking,
+                    "age": parseInt(age) || 0,
+                    // "allergies": allergies,
+                    // "pastconditions": pastconditions
+
+                  }
+                  await updateprofile(data);
+                }}
+                className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition"
+              >
+                Save Changes
+              </button>
+            </div>
+          )}
 
         </main>
       </div>
