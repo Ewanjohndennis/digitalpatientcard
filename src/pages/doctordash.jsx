@@ -1,41 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Users, FileText, Calendar, Settings as SettingsIcon, LogOut, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logOut from "@/lib/logout";
+import axios from "axios";
 
 export default function DoctorDashboard() {
   const [active, setActive] = useState("patients");
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  const [doctorDetails, setDoctorDetails] = useState({
-    name: "Dr. Alice Smith",
-    specialization: "Cardiologist",
-    email: "alice.smith@hospital.com",
-    phone: "9876543210",
-  });
+  const [doctorDetails, setDoctorDetails] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [referral, setReferral] = useState({ name: "", specialization: "", email: "" });
+  const [patientusername, setpatientusername] = useState("");
+  const [patients, setpatients] = useState([]);
+  const [patient, setpatient] = useState(null);
 
-  const [patients, setPatients] = useState([
-    {
-      id: "P001",
-      name: "John Doe",
-      age: 35,
-      condition: "Flu",
-      diseases: [
-        { name: "Flu", verified: true },
-        { name: "Cold", verified: false },
-      ],
-    },
-    {
-      id: "P002",
-      name: "Jane Smith",
-      age: 42,
-      condition: "Diabetes",
-      diseases: [{ name: "Diabetes", verified: false }],
-    },
-  ]);
+
+
+  const doctordashboard = async () => {
+    try {
+      const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/dashboard");
+      if (response.status >= 200 && response.status < 300) {
+        console.log(await response.data);
+        setDoctorDetails(response.data);
+      }
+
+    }
+    catch (e) {
+      console.log(e.response?.data || "Error");
+    }
+  }
+
+  const findpatients = async () => {
+    try {
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/all");
+      if (response.status >= 200 && response.status < 300) {
+        console.log(await response.data);
+        setpatients(response.data);
+      }
+    } catch (e) {
+      console.log(e.response?.data || "Error fetching patients!!");
+    }
+  }
+  useEffect(() => {
+    findpatients();
+
+
+  }, [])
+  useEffect(() => {
+    doctordashboard();
+
+
+  }, [])
+
+  const findpatient = async () => {
+    const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/search", null, {
+      params: {
+        patientusername: searchTerm
+      }
+    })
+    if (response.status >= 200 && response.status < 300) {
+      setpatient(response.data);
+    }
+  }
+
+
 
   const reports = [
     { id: "R001", title: "Blood Test - John", file: "#" },
@@ -49,14 +79,26 @@ export default function DoctorDashboard() {
 
   const filteredPatients = patients.filter(
     (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.id.toLowerCase().includes(searchTerm.toLowerCase())
+      p.username.toLowerCase().includes(searchTerm.toLowerCase())
+    // ||   p.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const verifyDisease = (patientIndex, diseaseIndex) => {
-    const updatedPatients = [...patients];
-    updatedPatients[patientIndex].diseases[diseaseIndex].verified = true;
-    setPatients(updatedPatients);
+  const verifyDisease = async (patientId, diseaseid) => {
+    try {
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/verify", null, {
+        params: {
+          patientId: Number(patientId),
+          diseaseid: diseaseid
+        }
+      });
+      if (response.status >= 200 && response.status < 300) {
+        findpatients();
+      }
+    } catch (e) {
+      console.log(e.response?.data || "Error , Cant verify patient disease!");
+    }
+
+
   };
 
   const handleDoctorUpdate = () => {
@@ -89,9 +131,8 @@ export default function DoctorDashboard() {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`flex items-center gap-2 p-2 rounded-md w-full text-left transition-colors ${
-                active === item.id ? "bg-cyan-700 text-white" : "hover:bg-cyan-500"
-              }`}
+              className={`flex items-center gap-2 p-2 rounded-md w-full text-left transition-colors ${active === item.id ? "bg-cyan-700 text-white" : "hover:bg-cyan-500"
+                }`}
             >
               {item.icon} {item.label}
             </button>
@@ -119,28 +160,34 @@ export default function DoctorDashboard() {
             />
             {filteredPatients.length > 0 ? (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {filteredPatients.map((p, patientIndex) => (
+                {filteredPatients.map((p) => (
                   <div key={p.id} className="p-4 bg-white rounded-lg shadow-sm border">
                     <p className="font-medium text-lg">{p.name}</p>
                     <p className="text-sm text-gray-500">ID: {p.id}</p>
                     <p className="text-sm text-gray-500">Age: {p.age}</p>
-                    <p className="text-sm text-gray-500 mb-2">Condition: {p.condition}</p>
+                    <p className="text-sm text-gray-500">Username: {p.username}</p>
                     <div className="space-y-1">
-                      {p.diseases.map((d, diseaseIndex) => (
-                        <div key={d.name} className="flex items-center justify-between">
+                      {p.diseases.map((d) => (
+                        <div key={d.id} className="flex items-center justify-between">
                           <span
-                            className={`text-sm ${
-                              d.verified ? "text-green-600" : "text-red-600"
-                            }`}
+                            className={`text-sm ${d.status ? "text-green-600" : "text-red-600"}`}
                           >
-                            {d.name} ({d.verified ? "Verified" : "Unverified"})
+                            {d.diseasename} ({d.status ? "Verified" : "Unverified"})
                           </span>
-                          {!d.verified && (
+                          {!d.status && (
                             <button
-                              onClick={() => verifyDisease(patientIndex, diseaseIndex)}
+                              onClick={() => verifyDisease(p.id, d.id)}
                               className="px-2 py-1 bg-green-500 text-white rounded-md hover:bg-green-400"
                             >
                               Verify
+                            </button>
+                          )}
+                          {d.status && (
+                            <button
+                              onClick={() => verifyDisease(p.id, d.id)}
+                              className="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-green-400"
+                            >
+                              Unverify
                             </button>
                           )}
                         </div>
@@ -156,7 +203,7 @@ export default function DoctorDashboard() {
         )}
 
         {/* Reports Section */}
-        {active === "reports" && (
+        {/* {active === "reports" && (
           <div>
             <h3 className="text-xl font-semibold mb-4">Reports</h3>
             {reports.length > 0 ? (
@@ -182,10 +229,10 @@ export default function DoctorDashboard() {
               <p className="text-gray-500">No reports available.</p>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Appointments Section */}
-        {active === "appointments" && (
+        {/* {active === "appointments" && (
           <div>
             <h3 className="text-xl font-semibold mb-4">Appointments</h3>
             {appointments.length > 0 ? (
@@ -206,14 +253,14 @@ export default function DoctorDashboard() {
               <p className="text-gray-500">No appointments scheduled.</p>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Settings Section */}
         {active === "settings" && (
           <div className="max-w-md bg-white p-6 rounded-lg shadow-md border">
             <h3 className="text-xl font-semibold mb-4">Doctor Details</h3>
             <div className="space-y-3">
-              {["name", "specialization", "email", "phone"].map((field) => (
+              {["name", "specialization", "email", "phoneNumber"].map((field) => (
                 <div key={field} className="flex justify-between items-center">
                   <span className="font-medium">
                     {field.charAt(0).toUpperCase() + field.slice(1)}:
