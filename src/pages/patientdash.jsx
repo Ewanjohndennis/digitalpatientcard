@@ -326,29 +326,7 @@ export default function PatientDashboard() {
                 />
               </div>
 
-              {/* Allergies */}
-              {/* <div>
-      <label className="block text-gray-600 mb-1">Allergies</label>
-      <input
-        type="text"
-        placeholder="Enter allergies"
-        value={allergies}
-        onChange={(e) => setAllergies(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div> */}
 
-              {/* Past Conditions */}
-              {/* <div>
-      <label className="block text-gray-600 mb-1">Past Conditions</label>
-      <input
-        type="text"
-        placeholder="Enter past medical conditions"
-        value={pastConditions}
-        onChange={(e) => setPastConditions(e.target.value)}
-        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-      />
-    </div> */}
 
               {/* Save Button */}
               <button
