@@ -14,7 +14,6 @@ export default function DoctorDashboard() {
   const [referral, setReferral] = useState({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
   const [patientusername, setpatientusername] = useState("");
   const [patients, setpatients] = useState([]);
-  const [patient, setpatient] = useState(null);
 
 
 
@@ -34,7 +33,7 @@ export default function DoctorDashboard() {
 
   const findpatients = async () => {
     try {
-      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/all");
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/patients/all");
       if (response.status >= 200 && response.status < 300) {
         console.log(await response.data);
         setpatients(response.data);
@@ -54,16 +53,6 @@ export default function DoctorDashboard() {
 
   }, [])
 
-  const findpatient = async () => {
-    const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/search", null, {
-      params: {
-        patientusername: searchTerm
-      }
-    })
-    if (response.status >= 200 && response.status < 300) {
-      setpatient(response.data);
-    }
-  }
 
 
 
