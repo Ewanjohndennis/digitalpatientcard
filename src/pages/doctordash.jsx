@@ -11,7 +11,7 @@ export default function DoctorDashboard() {
 
   const [doctorDetails, setDoctorDetails] = useState(null);
   const [editMode, setEditMode] = useState(false);
-  const [referral, setReferral] = useState({ name: "", specialization: "", email: "" });
+  const [referral, setReferral] = useState({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
   const [patientusername, setpatientusername] = useState("");
   const [patients, setpatients] = useState([]);
   const [patient, setpatient] = useState(null);
@@ -87,7 +87,7 @@ export default function DoctorDashboard() {
     try {
       const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/verify", null, {
         params: {
-          patientId: Number(patientId),
+          patientId: patientId,
           diseaseid: diseaseid
         }
       });
@@ -107,7 +107,22 @@ export default function DoctorDashboard() {
     alert("Doctor details updated (placeholder)");
   };
 
-  const handleReferralSubmit = () => {
+  const handleReferralSubmit = async () => {
+    try {
+
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/refer", null, {
+        params: {
+          patientusername: patientusername,
+          referredDoctorUsername: referredDoctorUsername,
+          remarks: remarks
+        }
+      });
+      console.log(await response.data);
+
+    } catch (e) {
+      console.log(e.response?.data || "Error Refering doctor!");
+    }
+
     alert(
       `Doctor referred:\nName: ${referral.name}\nSpecialization: ${referral.specialization}\nEmail: ${referral.email}`
     );
@@ -297,7 +312,7 @@ export default function DoctorDashboard() {
           <div className="max-w-md bg-white p-6 rounded-lg shadow-md border">
             <h3 className="text-xl font-semibold mb-4">Refer a Doctor</h3>
             <div className="space-y-3">
-              {["name", "specialization", "email"].map((field) => (
+              {["name", "referredDoctorUsername", "patientusername", "remarks"].map((field) => (
                 <input
                   key={field}
                   type={field === "email" ? "email" : "text"}
