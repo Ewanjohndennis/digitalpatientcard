@@ -92,6 +92,7 @@ export default function DoctorDashboard() {
         }
       });
       if (response.status >= 200 && response.status < 300) {
+        console.log(response.data);
         findpatients();
       }
     } catch (e) {
@@ -154,7 +155,7 @@ export default function DoctorDashboard() {
             <h3 className="text-xl font-semibold mb-4">Assigned Patients</h3>
             <input
               type="text"
-              placeholder="Search patients by name or ID..."
+              placeholder="Search patients by username "
               className="w-full mb-4 p-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
               onChange={(e) => setSearchTerm(e.target.value)}
             />
