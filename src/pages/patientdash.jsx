@@ -276,6 +276,17 @@ export default function PatientDashboard() {
 
               {/* Blood Pressure */}
               <div>
+                <label className="block text-gray-600 mb-1">Blood Pressure</label>
+                <input
+                  type="text"
+                  placeholder="e.g., 120/80"
+                  value={bloodpressure}
+                  onChange={(e) => setBloodpressure(e.target.value)}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                />
+              </div>
+              {/* BloodGroup */}
+              <div>
                 <label className="block text-gray-600 mb-1">Blood Group</label>
                 <select
                   onChange={(e) => setBloodgroup(e.target.value)}
