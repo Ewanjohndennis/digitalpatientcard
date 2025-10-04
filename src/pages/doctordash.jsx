@@ -96,24 +96,15 @@ export default function DoctorDashboard() {
 
   const handleReferralSubmit = async () => {
     try {
-
-      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/refer", null, {
-        params: {
-          patientusername: patientusername,
-          referredDoctorUsername: referredDoctorUsername,
-          remarks: remarks
-        }
-      });
+      console.log(referral);
+      const response = await axios.post(`https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/refer?patientusername=${patientusername}&referredDoctorUsername=${referredDoctorUsername}&remarks=${remarks}`);
       console.log(await response.data);
+      alert(`Doctor : ${referredDoctorUsername} Refered Successfully !`)
+      setReferral({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
 
     } catch (e) {
       console.log(e.response?.data || "Error Refering doctor!");
     }
-
-    alert(
-      `Doctor referred:\nName: ${referral.name}\nSpecialization: ${referral.specialization}\nEmail: ${referral.email}`
-    );
-    setReferral({ name: "", specialization: "", email: "" });
   };
 
   const navItems = [
@@ -302,8 +293,8 @@ export default function DoctorDashboard() {
               {["name", "referredDoctorUsername", "patientusername", "remarks"].map((field) => (
                 <input
                   key={field}
-                  type={field === "email" ? "email" : "text"}
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                  type={"text"}
+                  placeholder={field === "referredDoctorUsername" ? "Enter the username of the doctor to Refer" : field.charAt(0).toUpperCase() + field.slice(1)}
                   className="w-full p-2 border rounded-md"
                   value={referral[field]}
                   onChange={(e) =>
