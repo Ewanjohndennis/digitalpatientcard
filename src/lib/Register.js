@@ -6,11 +6,12 @@ const register = async (user, formData, navigate) => {
         "username": formData.username,
         "password": formData.password,
         "name": formData.name,
-        "address": "",
-        "email": "",
+        "address": formData.address,
+        "email": formData.email,
         "phoneNumber": formData.phoneNumber,
         "age": formData.age,
-        "specialization": formData.specialization
+        "specialization": formData.specialization,
+        "address": formData.address
     })
     if (response.status >= 200 && response.status < 300) {
         alert(`${user} Registered Successfully!!`);
