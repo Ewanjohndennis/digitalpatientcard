@@ -21,6 +21,9 @@ const login = async (user, username, password, navigate, setloading, adminpin = 
         if (err.response?.data == "Patient Already Logged in!") {
             navigate(`/${user}-dashboard`);
         }
+        if (err.response?.data == "Doctor Already Logged in") {
+            navigate(`/${user}-dashboard`);
+        }
         console.log("Error from backend:", err.response?.data || err.message);
         alert(err.response?.data || "Login failed , Check your network connection ");
     }

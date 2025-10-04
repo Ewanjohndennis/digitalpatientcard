@@ -96,15 +96,23 @@ export default function DoctorDashboard() {
 
   const handleReferralSubmit = async () => {
     try {
-      console.log(referral);
-      const response = await axios.post(`https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/refer?patientusername=${patientusername}&referredDoctorUsername=${referredDoctorUsername}&remarks=${remarks}`);
+
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/refer", null, {
+        params: {
+          patientusername: referral["patientusername"],
+          referredDoctorUsername: referral["referredDoctorUsername"],
+          remarks: referral["remarks"]
+        }
+      });
       console.log(await response.data);
-      alert(`Doctor : ${referredDoctorUsername} Refered Successfully !`)
-      setReferral({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
+      alert(`Doctor referred:\nUsername: ${referral.referredDoctorUsername}\nPatient: ${referral.patientusername}\n`);
 
     } catch (e) {
       console.log(e.response?.data || "Error Refering doctor!");
     }
+
+
+    setReferral({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
   };
 
   const navItems = [
