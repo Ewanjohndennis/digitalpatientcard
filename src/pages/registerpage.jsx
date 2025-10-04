@@ -12,8 +12,8 @@ export default function RegisterPage() {
     name: "",         // patient
     age: "",          // patient
     phoneNumber: "",   // patient
-    // doctname: "",    // doctor
-    specialization: ""
+    specialization: "",
+    email: ""
   })
 
   const navigate = useNavigate();
@@ -137,6 +137,13 @@ export default function RegisterPage() {
                   name="phoneNumber"
                   onChange={handleChange}
                   placeholder="PhoneNumber"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                />
+                <input
+                  value={formData.email}
+                  name="email"
+                  onChange={handleChange}
+                  placeholder="email"
                   className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
               </>
