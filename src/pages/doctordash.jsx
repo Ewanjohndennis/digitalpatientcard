@@ -13,6 +13,7 @@ export default function DoctorDashboard() {
   const [editMode, setEditMode] = useState(false);
   const [referral, setReferral] = useState({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
   const [patients, setpatients] = useState([]);
+  const [doctors, setDoctors] = useState([]);
 
 
 
@@ -41,29 +42,27 @@ export default function DoctorDashboard() {
       console.log(e.response?.data || "Error fetching patients!!");
     }
   }
+
+  const getDoctors = async () => {
+    try {
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all"); // placeholder URL
+      if (response.status >= 200 && response.status < 300) {
+        setDoctors(response.data);
+      }
+    } catch (e) {
+      console.log("Error fetching doctors:", e);
+    }
+  };
+
   useEffect(() => {
     findpatients();
-
-
   }, [])
+
   useEffect(() => {
     doctordashboard();
-
-
   }, [])
 
 
-
-
-  const reports = [
-    { id: "R001", title: "Blood Test - John", file: "#" },
-    { id: "R002", title: "X-Ray - Jane", file: "#" },
-  ];
-
-  const appointments = [
-    { id: "A001", patientName: "John Doe", date: "2025-10-02T10:00:00" },
-    { id: "A002", patientName: "Jane Smith", date: "2025-10-03T14:30:00" },
-  ];
 
   const filteredPatients = patients.filter(
     (p) =>
@@ -100,21 +99,20 @@ export default function DoctorDashboard() {
 
       const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/refer", null, {
         params: {
-          patientusername: patientusername,
-          referredDoctorUsername: referredDoctorUsername,
-          remarks: remarks
+          patientusername: referral["patientusername"],
+          referredDoctorUsername: referral["referredDoctorUsername"],
+          remarks: referral["remarks"]
         }
       });
       console.log(await response.data);
+      alert(`Doctor referred:\nUsername: ${referral.referredDoctorUsername}\nPatient: ${referral.patientusername}\n`);
 
     } catch (e) {
       console.log(e.response?.data || "Error Refering doctor!");
     }
 
-    alert(
-      `Doctor referred:\nName: ${referral.name}\nSpecialization: ${referral.specialization}\nEmail: ${referral.email}`
-    );
-    setReferral({ name: "", specialization: "", email: "" });
+
+    setReferral({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
   };
 
   const navItems = [
@@ -303,8 +301,8 @@ export default function DoctorDashboard() {
               {["name", "referredDoctorUsername", "patientusername", "remarks"].map((field) => (
                 <input
                   key={field}
-                  type={field === "email" ? "email" : "text"}
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                  type={"text"}
+                  placeholder={field === "referredDoctorUsername" ? "Enter the username of the doctor to Refer" : field.charAt(0).toUpperCase() + field.slice(1)}
                   className="w-full p-2 border rounded-md"
                   value={referral[field]}
                   onChange={(e) =>

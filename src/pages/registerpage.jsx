@@ -13,8 +13,7 @@ export default function RegisterPage() {
     age: "",          // patient
     phoneNumber: "",   // patient
     // doctname: "",    // doctor
-    specialization: "",     // doctor
-    hospital: "",     // doctor
+    specialization: ""
   })
 
   const navigate = useNavigate();
