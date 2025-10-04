@@ -13,7 +13,8 @@ export default function RegisterPage() {
     age: "",          // patient
     phoneNumber: "",   // patient
     specialization: "",
-    email: ""
+    email: "",
+    address: ""
   })
 
   const navigate = useNavigate();
@@ -86,6 +87,22 @@ export default function RegisterPage() {
               className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
             />
 
+            <input
+              value={formData.address}
+              name="address"
+              onChange={handleChange}
+              placeholder="address"
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+            />
+
+            <input
+              value={formData.email}
+              name="email"
+              onChange={handleChange}
+              placeholder="email"
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+            />
+
             {/* Patient-specific fields */}
             {registrationRole === "patient" && (
               <>
@@ -139,13 +156,9 @@ export default function RegisterPage() {
                   placeholder="PhoneNumber"
                   className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
-                <input
-                  value={formData.email}
-                  name="email"
-                  onChange={handleChange}
-                  placeholder="email"
-                  className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
-                />
+
+
+
               </>
             )}
 
