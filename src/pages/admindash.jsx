@@ -3,20 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { Home, Users, FileText, Settings, LogOut } from "lucide-react";
 import axios from "axios";
 import logOut from "@/lib/logout";
+import LoadingModal from "@/components/spinner";
 
 export default function AdminDashboard() {
   const [active, setActive] = useState("dashboard");
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [loading, setloading] = useState(false);
   const navigate = useNavigate();
 
   // Fetch patients from backend
   const getPatients = async () => {
+    setloading(true);
     try {
       const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/patients/all"); // placeholder URL
       if (response.status >= 200 && response.status < 300) {
         setPatients(response.data);
         console.log(response.data);
+        setloading(false);
       }
     } catch (e) {
       console.log("Error fetching patients:", e);
@@ -25,10 +29,12 @@ export default function AdminDashboard() {
 
   // Fetch doctors from backend
   const getDoctors = async () => {
+    setloading(true);
     try {
       const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all"); // placeholder URL
       if (response.status >= 200 && response.status < 300) {
         setDoctors(response.data);
+        setloading(false);
       }
     } catch (e) {
       console.log("Error fetching doctors:", e);
@@ -63,8 +69,10 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
+
     getPatients();
     getDoctors();
+
   }, []);
 
   const navItems = [
@@ -77,6 +85,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {loading && (<LoadingModal message="Loading Admin Dashboard...."></LoadingModal>)}
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md p-6 flex flex-col">
         <h2 className="text-2xl font-bold mb-6">Digital Patient Card</h2>
