@@ -3,31 +3,36 @@ import { Users, FileText, Calendar, Settings as SettingsIcon, LogOut, UserPlus }
 import { useNavigate } from "react-router-dom";
 import logOut from "@/lib/logout";
 import axios from "axios";
+import LoadingModal from "@/components/spinner";
 
 export default function DoctorDashboard() {
   const [active, setActive] = useState("patients");
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  const [doctorDetails, setDoctorDetails] = useState(null);
+  const [doctorDetails, setDoctorDetails] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [referral, setReferral] = useState({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
   const [patients, setpatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [loading, setloading] = useState(false);
 
 
 
   const doctordashboard = async () => {
+    setloading(true);
     try {
       const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/dashboard");
       if (response.status >= 200 && response.status < 300) {
         console.log(await response.data);
         setDoctorDetails(response.data);
+        setloading(false);
       }
-
     }
     catch (e) {
       console.log(e.response?.data || "Error");
+      alert("Error Occured !");
+      setloading(false);
     }
   }
 
@@ -125,6 +130,7 @@ export default function DoctorDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {loading && (<LoadingModal message="Loading Dashboard...."></LoadingModal>)}
       {/* Sidebar */}
       <aside className="w-64 bg-cyan-700 text-white shadow-md p-6 flex flex-col">
         <h2 className="text-2xl font-bold mb-6">Doctor Dashboard</h2>
@@ -153,7 +159,18 @@ export default function DoctorDashboard() {
         {/* Patients Section */}
         {active === "patients" && (
           <div>
-            <h3 className="text-xl font-semibold mb-4">Assigned Patients</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xl font-semibold">
+                Welcome Dr.{doctorDetails.name}
+              </span>
+              <img
+                width={20}
+                height={20}
+                style={{ marginTop: "2px" }}
+                src={doctorDetails.status ? 'check.png' : 'xmark.png'}
+                alt="Close icon"
+              />
+            </div>
             <input
               type="text"
               placeholder="Search patients by username "
@@ -202,7 +219,8 @@ export default function DoctorDashboard() {
               <p className="text-gray-500">No matching patients found.</p>
             )}
           </div>
-        )}
+        )
+        }
 
         {/* Reports Section */}
         {/* {active === "reports" && (
@@ -258,68 +276,72 @@ export default function DoctorDashboard() {
         )} */}
 
         {/* Settings Section */}
-        {active === "settings" && (
-          <div className="max-w-md bg-white p-6 rounded-lg shadow-md border">
-            <h3 className="text-xl font-semibold mb-4">Doctor Details</h3>
-            <div className="space-y-3">
-              {["name", "specialization", "email", "phoneNumber"].map((field) => (
-                <div key={field} className="flex justify-between items-center">
-                  <span className="font-medium">
-                    {field.charAt(0).toUpperCase() + field.slice(1)}:
-                  </span>
-                  {editMode ? (
-                    <input
-                      className="border px-2 py-1 rounded-md"
-                      value={doctorDetails[field]}
-                      onChange={(e) =>
-                        setDoctorDetails({
-                          ...doctorDetails,
-                          [field]: e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    <span>{doctorDetails[field]}</span>
-                  )}
-                </div>
-              ))}
-              <button
-                className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-400"
-                onClick={editMode ? handleDoctorUpdate : () => setEditMode(true)}
-              >
-                {editMode ? "Save Changes" : "Edit Details"}
-              </button>
+        {
+          active === "settings" && (
+            <div className="max-w-md bg-white p-6 rounded-lg shadow-md border">
+              <h3 className="text-xl font-semibold mb-4">Doctor Details</h3>
+              <div className="space-y-3">
+                {["name", "specialization", "email", "phoneNumber"].map((field) => (
+                  <div key={field} className="flex justify-between items-center">
+                    <span className="font-medium">
+                      {field.charAt(0).toUpperCase() + field.slice(1)}:
+                    </span>
+                    {editMode ? (
+                      <input
+                        className="border px-2 py-1 rounded-md"
+                        value={doctorDetails[field]}
+                        onChange={(e) =>
+                          setDoctorDetails({
+                            ...doctorDetails,
+                            [field]: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      <span>{doctorDetails[field]}</span>
+                    )}
+                  </div>
+                ))}
+                <button
+                  className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-400"
+                  onClick={editMode ? handleDoctorUpdate : () => setEditMode(true)}
+                >
+                  {editMode ? "Save Changes" : "Edit Details"}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
         {/* Referral Section */}
-        {active === "referral" && (
-          <div className="max-w-md bg-white p-6 rounded-lg shadow-md border">
-            <h3 className="text-xl font-semibold mb-4">Refer a Doctor</h3>
-            <div className="space-y-3">
-              {["name", "referredDoctorUsername", "patientusername", "remarks"].map((field) => (
-                <input
-                  key={field}
-                  type={"text"}
-                  placeholder={field === "referredDoctorUsername" ? "Enter the username of the doctor to Refer" : field.charAt(0).toUpperCase() + field.slice(1)}
-                  className="w-full p-2 border rounded-md"
-                  value={referral[field]}
-                  onChange={(e) =>
-                    setReferral({ ...referral, [field]: e.target.value })
-                  }
-                />
-              ))}
-              <button
-                className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-400"
-                onClick={handleReferralSubmit}
-              >
-                Refer Doctor
-              </button>
+        {
+          active === "referral" && (
+            <div className="max-w-md bg-white p-6 rounded-lg shadow-md border">
+              <h3 className="text-xl font-semibold mb-4">Refer a Doctor</h3>
+              <div className="space-y-3">
+                {["name", "referredDoctorUsername", "patientusername", "remarks"].map((field) => (
+                  <input
+                    key={field}
+                    type={"text"}
+                    placeholder={field === "referredDoctorUsername" ? "Enter the username of the doctor to Refer" : field.charAt(0).toUpperCase() + field.slice(1)}
+                    className="w-full p-2 border rounded-md"
+                    value={referral[field]}
+                    onChange={(e) =>
+                      setReferral({ ...referral, [field]: e.target.value })
+                    }
+                  />
+                ))}
+                <button
+                  className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-400"
+                  onClick={handleReferralSubmit}
+                >
+                  Refer Doctor
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-      </main>
-    </div>
+          )
+        }
+      </main >
+    </div >
   );
 }
