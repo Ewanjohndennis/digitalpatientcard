@@ -241,7 +241,7 @@ export default function DoctorDashboard() {
                             </div>
                             <button className="w-full px-4 py-2 bg-cyan-600 text-white font-semibold rounded-md hover:bg-cyan-700 transition-colors" onClick={handleReferralSubmit} disabled={loading}>{loading ? 'Submitting...' : 'Submit Referral'}</button>
                         </div>
-                        
+
                         {/* --- UPDATED REFERRAL HISTORY SECTION --- */}
                         <div className="space-y-3">
                             <h4 className="text-lg font-semibold text-gray-700 pt-4 border-t">Your Referral History</h4>
@@ -250,9 +250,10 @@ export default function DoctorDashboard() {
                                     {sortedReferrals.map((r) => (
                                         <div key={r.id} className="p-3 bg-gray-50 border rounded-md">
                                             <p className="font-medium text-gray-800">Patient: {r.patientUsername}</p>
+                                            <p className="text-sm text-gray-600">Referred From: Dr. {r.referringDoctor}</p>
                                             <p className="text-sm text-gray-600">Referred to: Dr. {r.referredDoctor}</p>
                                             <p className="text-sm text-gray-500 mt-1">
-                                                <span className="font-medium">Reason:</span> {r.reason}
+                                                <span className="font-medium">Remarks:</span> {r.reason}
                                             </p>
                                         </div>
                                     ))}
