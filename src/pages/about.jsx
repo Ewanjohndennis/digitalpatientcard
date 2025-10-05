@@ -41,7 +41,7 @@ export default function AboutPage() {
         viewport={{ once: true }}
         className="max-w-3xl text-lg md:text-xl text-gray-700 text-center leading-relaxed mb-12"
       >
-        The <span className="font-semibold text-cyan-700">Digital Patient Card (DPC)</span> 
+        The <span className="font-semibold text-cyan-700">Digital Patient Card (DPC) </span> 
         is a digital health record management system that allows patients and doctors 
         to manage medical information in a single, unified platform. 
         It helps eliminate paperwork, reduce errors, and make healthcare data more 
