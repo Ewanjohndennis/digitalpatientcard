@@ -83,7 +83,7 @@ export default function PatientDashboard() {
     if (!username) return alert("Username not available");
 
     try {
-      const response = await axios.get(`http://localhost:8080/download/patient-pdf`, {
+      const response = await axios.get(`https://digital-patient-card-backend-839268888277.asia-south1.run.app/download/patient-pdf`, {
         params: { username },
         responseType: "blob",
       });
@@ -194,6 +194,7 @@ export default function PatientDashboard() {
                     className="flex justify-between items-center px-4 py-2 bg-gray-50 rounded-lg"
                   >
                     <span>{d.diseasename}</span>
+                    <span>{d.verifiedDoctor ? "   Verified By : Dr.        " + d.verifiedDoctor : ""}</span>
                     <span
                       className={`text-sm px-2 py-1 rounded ${d.status ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
                         }`}
