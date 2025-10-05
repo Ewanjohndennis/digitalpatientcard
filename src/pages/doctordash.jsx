@@ -9,28 +9,26 @@ export default function DoctorDashboard() {
     const [active, setActive] = useState("patients");
     const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
-
-    const [doctorDetails, setDoctorDetails] = useState([]);
+    const [doctorDetails, setDoctorDetails] = useState({ referrals: [] });
     const [editMode, setEditMode] = useState(false);
-    const [referral, setReferral] = useState({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
+    const [referral, setReferral] = useState({ patientUsername: "", referredDoctorUsername: "", remarks: "" });
     const [patients, setpatients] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [loading, setloading] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // State for mobile menu
-    
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
     const doctordashboard = async () => {
         setloading(true);
         try {
             const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/dashboard");
             if (response.status >= 200 && response.status < 300) {
-                console.log(await response.data);
                 setDoctorDetails(response.data);
-                setloading(false);
             }
         }
         catch (e) {
             console.log(e.response?.data || "Error");
             alert("Error Occured !");
+        } finally {
             setloading(false);
         }
     }
@@ -39,7 +37,6 @@ export default function DoctorDashboard() {
         try {
             const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/patients/all");
             if (response.status >= 200 && response.status < 300) {
-                console.log(await response.data);
                 setpatients(response.data);
             }
         } catch (e) {
@@ -49,7 +46,7 @@ export default function DoctorDashboard() {
 
     const getDoctors = async () => {
         try {
-            const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all"); // placeholder URL
+            const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all");
             if (response.status >= 200 && response.status < 300) {
                 setDoctors(response.data);
             }
@@ -72,13 +69,9 @@ export default function DoctorDashboard() {
     const verifyDisease = async (patientId, diseaseid) => {
         try {
             const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/verify", null, {
-                params: {
-                    patientId: patientId,
-                    diseaseid: diseaseid
-                }
+                params: { patientId, diseaseid }
             });
             if (response.status >= 200 && response.status < 300) {
-                console.log(response.data);
                 findpatients();
             }
         } catch (e) {
@@ -92,69 +85,67 @@ export default function DoctorDashboard() {
     };
 
     const handleReferralSubmit = async () => {
+        if (!referral.patientUsername || !referral.referredDoctorUsername || !referral.remarks) {
+            alert("Please select a patient, a doctor, and provide remarks.");
+            return;
+        }
+        setloading(true);
         try {
             const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/refer", null, {
                 params: {
-                    patientusername: referral["patientusername"],
-                    referredDoctorUsername: referral["referredDoctorUsername"],
-                    remarks: referral["remarks"]
+                    patientusername: referral.patientUsername,
+                    referredDoctorUsername: referral.referredDoctorUsername,
+                    remarks: referral.remarks
                 }
             });
-            console.log(await response.data);
-            alert(`Doctor referred:\nUsername: ${referral.referredDoctorUsername}\nPatient: ${referral.patientusername}\n`);
+            if (response.status >= 200 && response.status < 300) {
+                alert("Referral submitted successfully!");
+                setReferral({ patientUsername: "", referredDoctorUsername: "", remarks: "" });
+                doctordashboard();
+            }
         } catch (e) {
-            console.log(e.response?.data || "Error Refering doctor!");
+            console.error("Error submitting referral:", e.response?.data || e.message);
+            alert("Failed to submit referral. Please try again.");
+        } finally {
+            setloading(false);
         }
-        setReferral({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
     };
+
+    // --- Sort referrals to show the latest one on top ---
+    const sortedReferrals = [...(doctorDetails.referrals || [])].sort((a, b) => b.id - a.id);
 
     const navItems = [
         { id: "patients", label: "Patients", icon: <Users size={18} /> },
         { id: "reports", label: "Reports", icon: <FileText size={18} /> },
         { id: "appointments", label: "Appointments", icon: <Calendar size={18} /> },
         { id: "referral", label: "Referral", icon: <UserPlus size={18} /> },
-        { id: "settings", label: "Settings", icon: <SettingsIcon size={18} /> },  
+        { id: "settings", label: "Settings", icon: <SettingsIcon size={18} /> },
     ];
 
     return (
         <div className="flex flex-col md:flex-row h-screen bg-gray-50">
-            {loading && (<LoadingModal message="Loading Dashboard...."></LoadingModal>)}
+            {loading && (<LoadingModal message="Loading Dashboard...." />)}
 
-            {/* Mobile Header */}
             <header className="relative md:hidden flex justify-between items-center p-4 bg-cyan-700 text-white shadow-md z-30">
                 <h2 className="text-xl font-bold">Doctor</h2>
                 <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
                     <Menu size={24} />
                 </button>
-
-                {/* Mobile Dropdown Menu */}
                 {isMenuOpen && (
                     <div className="absolute top-full right-4 mt-2 w-64 bg-cyan-700 text-white p-4 z-50 rounded-md shadow-lg">
                         <nav className="flex flex-col space-y-2">
                             {navItems.map((item) => (
                                 <button
                                     key={item.id}
-                                    onClick={() => {
-                                        setActive(item.id);
-                                        setIsMenuOpen(false);
-                                    }}
-                                    className={`flex items-center gap-2 p-2 rounded-md w-full text-left transition-colors ${active === item.id
-                                            ? "bg-cyan-600 text-white"
-                                            : "hover:bg-cyan-500"
-                                        }`}
+                                    onClick={() => { setActive(item.id); setIsMenuOpen(false); }}
+                                    className={`flex items-center gap-2 p-2 rounded-md w-full text-left transition-colors ${active === item.id ? "bg-cyan-600" : "hover:bg-cyan-500"}`}
                                 >
                                     {item.icon} {item.label}
                                 </button>
                             ))}
                         </nav>
                         <div className="mt-4 pt-4 border-t border-cyan-600 flex justify-center">
-                            <button
-                                onClick={async () => {
-                                    setIsMenuOpen(false);
-                                    await logOut("doctor", navigate);
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 rounded-md hover:bg-cyan-500"
-                            >
+                            <button onClick={async () => { setIsMenuOpen(false); await logOut("doctor", navigate); }} className="flex items-center gap-2 px-4 py-2 rounded-md hover:bg-cyan-500">
                                 <LogOut size={18} /> Logout
                             </button>
                         </div>
@@ -162,51 +153,28 @@ export default function DoctorDashboard() {
                 )}
             </header>
 
-            {/* Sidebar for Desktop */}
             <aside className="hidden md:flex w-64 bg-cyan-700 text-white shadow-md p-6 flex-col">
                 <h2 className="text-2xl font-bold mb-6">Doctor Dashboard</h2>
                 <nav className="flex-1 flex flex-col space-y-3">
                     {navItems.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => setActive(item.id)}
-                            className={`flex items-center gap-2 p-2 rounded-md w-full text-left transition-colors ${active === item.id ? "bg-cyan-600 text-white" : "hover:bg-cyan-500"
-                                }`}
-                        >
+                        <button key={item.id} onClick={() => setActive(item.id)} className={`flex items-center gap-2 p-2 rounded-md w-full text-left transition-colors ${active === item.id ? "bg-cyan-600" : "hover:bg-cyan-500"}`}>
                             {item.icon} {item.label}
                         </button>
                     ))}
                 </nav>
-                <button
-                    onClick={async () => await logOut("doctor", navigate)}
-                    className="mt-auto flex items-center gap-2 p-2 w-full rounded-md hover:bg-cyan-500 text-white"
-                >
+                <button onClick={async () => await logOut("doctor", navigate)} className="mt-auto flex items-center gap-2 p-2 w-full rounded-md hover:bg-cyan-500 text-white">
                     <LogOut size={18} /> Logout
                 </button>
             </aside>
 
-            {/* Main Content */}
             <main className="flex-1 p-6 overflow-y-auto">
                 {active === "patients" && (
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xl font-semibold">
-                                Welcome Dr.{doctorDetails.name}
-                            </span>
-                            <img
-                                width={20}
-                                height={20}
-                                style={{ marginTop: "2px" }}
-                                src={doctorDetails.status ? 'check.png' : 'xmark.png'}
-                                alt="Status icon"
-                            />
+                            <span className="text-xl font-semibold">Welcome Dr.{doctorDetails.name}</span>
+                            <img width={20} height={20} style={{ marginTop: "2px" }} src={doctorDetails.status ? 'check.png' : 'xmark.png'} alt="Status icon" />
                         </div>
-                        <input
-                            type="text"
-                            placeholder="Search patients by username "
-                            className="w-full mb-4 p-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                        <input type="text" placeholder="Search patients by username " className="w-full mb-4 p-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" onChange={(e) => setSearchTerm(e.target.value)} />
                         {filteredPatients.length > 0 ? (
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                 {filteredPatients.map((p) => (
@@ -218,30 +186,18 @@ export default function DoctorDashboard() {
                                         <div className="space-y-1">
                                             {p.diseases.map((d) => (
                                                 <div key={d.id} className="flex items-center justify-between">
-                                                    <span
-                                                        className={`text-sm ${d.status ? "text-green-600" : "text-red-600"}`}
-                                                    >
-                                                        {d.diseasename} ({d.status ? "Verified" : "Unverified"})
-                                                    </span>
-                                                    <button
-                                                        onClick={() => verifyDisease(p.id, d.id)}
-                                                        className={`px-2 py-1 text-xs rounded-md text-white ${d.status ? 'bg-red-500 hover:bg-red-400' : 'bg-green-500 hover:bg-green-400'}`}
-                                                    >
-                                                        {d.status ? "Unverify" : "Verify"}
-                                                    </button>
+                                                    <span className={`text-sm ${d.status ? "text-green-600" : "text-red-600"}`}>{d.diseasename} ({d.status ? "Verified" : "Unverified"})</span>
+                                                    <button onClick={() => verifyDisease(p.id, d.id)} className={`px-2 py-1 text-xs rounded-md text-white ${d.status ? 'bg-red-500 hover:bg-red-400' : 'bg-green-500 hover:bg-green-400'}`}>{d.status ? "Unverify" : "Verify"}</button>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        ) : (
-                            <p className="text-gray-500">No matching patients found.</p>
-                        )}
+                        ) : (<p className="text-gray-500">No matching patients found.</p>)}
                     </div>
                 )}
 
-                {/* Placeholder for other sections */}
                 {active === "reports" && <div className="text-center text-gray-500">Reports Section Coming Soon</div>}
                 {active === "appointments" && <div className="text-center text-gray-500">Appointments Section Coming Soon</div>}
 
@@ -251,107 +207,61 @@ export default function DoctorDashboard() {
                         <div className="space-y-3">
                             {["name", "specialization", "email", "phoneNumber"].map((field) => (
                                 <div key={field} className="flex justify-between items-center">
-                                    <span className="font-medium capitalize">
-                                        {field.replace(/([A-Z])/g, ' $1')}:
-                                    </span>
-                                    {editMode ? (
-                                        <input
-                                            className="border px-2 py-1 rounded-md"
-                                            value={doctorDetails[field] || ''}
-                                            onChange={(e) =>
-                                                setDoctorDetails({
-                                                    ...doctorDetails,
-                                                    [field]: e.target.value,
-                                                })
-                                            }
-                                        />
-                                    ) : (
-                                        <span>{doctorDetails[field]}</span>
-                                    )}
+                                    <span className="font-medium capitalize">{field.replace(/([A-Z])/g, ' $1')}:</span>
+                                    {editMode ? (<input className="border px-2 py-1 rounded-md" value={doctorDetails[field] || ''} onChange={(e) => setDoctorDetails({ ...doctorDetails, [field]: e.target.value, })} />) : (<span>{doctorDetails[field]}</span>)}
                                 </div>
                             ))}
-                            <button
-                                className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-400"
-                                onClick={editMode ? handleDoctorUpdate : () => setEditMode(true)}
-                            >
-                                {editMode ? "Save Changes" : "Edit Details"}
-                            </button>
+                            <button className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-400" onClick={editMode ? handleDoctorUpdate : () => setEditMode(true)}>{editMode ? "Save Changes" : "Edit Details"}</button>
                         </div>
                     </div>
                 )}
 
-{active === "referral" && (
-    <div className="max-w-2xl bg-white p-6 rounded-lg shadow-md border space-y-6">
-        <h3 className="text-xl font-semibold mb-4">Doctor Referrals</h3>
-
-        {/* Existing Referrals */}
-        {doctorDetails.referrals && doctorDetails.referrals.length > 0 ? (
-            <div className="space-y-3">
-                {doctorDetails.referrals.map((r) => (
-                    <div key={r.id} className="p-3 border rounded-md flex justify-between items-center">
-                        <div>
-                            <p className="font-medium">{r.patientUsername}</p>
-                            <p className="text-sm text-gray-500">
-                                Referred by: {r.referringDoctor} | To: {r.referredDoctor}
-                            </p>
-                            <p className="text-sm text-gray-500">Reason: {r.reason}</p>
+                {active === "referral" && (
+                    <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md border space-y-6">
+                        <h3 className="text-2xl font-bold text-gray-800 border-b pb-3">Doctor Referrals</h3>
+                        <div className="space-y-4">
+                            <h4 className="text-lg font-semibold text-gray-700">Create New Referral</h4>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Select Patient</label>
+                                <select className="w-full p-2 border rounded-md bg-white focus:ring-2 focus:ring-cyan-500" value={referral.patientUsername} onChange={(e) => setReferral({ ...referral, patientUsername: e.target.value })}>
+                                    <option value="">-- Select a Patient --</option>
+                                    {patients.map((p) => (<option key={p.id} value={p.username}>{p.name} ({p.username})</option>))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Refer To Doctor</label>
+                                <select className="w-full p-2 border rounded-md bg-white focus:ring-2 focus:ring-cyan-500" value={referral.referredDoctorUsername} onChange={(e) => setReferral({ ...referral, referredDoctorUsername: e.target.value })}>
+                                    <option value="">-- Select a Doctor --</option>
+                                    {doctors.filter((d) => d.username !== doctorDetails.username).map((d) => (<option key={d.id} value={d.username}>Dr. {d.name} ({d.specialization})</option>))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Remarks / Reason</label>
+                                <textarea placeholder="Reason for referral..." className="w-full p-2 border rounded-md min-h-[100px] focus:ring-2 focus:ring-cyan-500" value={referral.remarks} onChange={(e) => setReferral({ ...referral, remarks: e.target.value })} />
+                            </div>
+                            <button className="w-full px-4 py-2 bg-cyan-600 text-white font-semibold rounded-md hover:bg-cyan-700 transition-colors" onClick={handleReferralSubmit} disabled={loading}>{loading ? 'Submitting...' : 'Submit Referral'}</button>
+                        </div>
+                        
+                        {/* --- UPDATED REFERRAL HISTORY SECTION --- */}
+                        <div className="space-y-3">
+                            <h4 className="text-lg font-semibold text-gray-700 pt-4 border-t">Your Referral History</h4>
+                            {sortedReferrals.length > 0 ? (
+                                <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+                                    {sortedReferrals.map((r) => (
+                                        <div key={r.id} className="p-3 bg-gray-50 border rounded-md">
+                                            <p className="font-medium text-gray-800">Patient: {r.patientUsername}</p>
+                                            <p className="text-sm text-gray-600">Referred to: Dr. {r.referredDoctor}</p>
+                                            <p className="text-sm text-gray-500 mt-1">
+                                                <span className="font-medium">Reason:</span> {r.reason}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (<p className="text-gray-500 text-sm italic">You have not made any referrals yet.</p>)}
                         </div>
                     </div>
-                ))}
-            </div>
-        ) : (
-            <p className="text-gray-500">No referrals found.</p>
-        )}
-
-        {/* New Referral Form */}
-        <div className="mt-4 space-y-3">
-            <h4 className="font-semibold">Refer a New Patient</h4>
-            <select
-                className="w-full p-2 border rounded-md"
-                value={referral.patientUsername}
-                onChange={(e) => setReferral({ ...referral, patientUsername: e.target.value })}
-            >
-                <option value="">Select Patient</option>
-                {patients.map((p) => (
-                    <option key={p.id} value={p.username}>
-                        {p.name} ({p.username})
-                    </option>
-                ))}
-            </select>
-
-            <select
-                className="w-full p-2 border rounded-md"
-                value={referral.referredDoctorUsername}
-                onChange={(e) => setReferral({ ...referral, referredDoctorUsername: e.target.value })}
-            >
-                <option value="">Select Doctor</option>
-                {doctors
-                    .filter((d) => d.username !== doctorDetails.username)
-                    .map((d) => (
-                        <option key={d.id} value={d.username}>
-                            {d.name} ({d.username})
-                        </option>
-                    ))}
-            </select>
-
-            <input
-                type="text"
-                placeholder="Reason for referral"
-                className="w-full p-2 border rounded-md"
-                value={referral.remarks}
-                onChange={(e) => setReferral({ ...referral, remarks: e.target.value })}
-            />
-
-            <button
-                className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-400"
-                onClick={handleReferralSubmit}
-            >
-                Refer Patient
-            </button>
+                )}
+            </main>
         </div>
-    </div>
-)}
-            </main >
-        </div >
     );
 }
