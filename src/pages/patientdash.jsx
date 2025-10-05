@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import logOut from "@/lib/logout";
 import updateprofile from "@/lib/updateprofile";
+import LoadingModal from "@/components/spinner";
 
 export default function PatientDashboard() {
   const [active, setActive] = useState("diseases");
@@ -24,11 +25,13 @@ export default function PatientDashboard() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [allergies, setAllergies] = useState("");
   const [pastConditions, setPastConditions] = useState("");
+  const [loading, setloading] = useState(false);
 
   const navigate = useNavigate();
 
   // Fetch patient data
   const getPatientData = async () => {
+    setloading(true);
     try {
       const response = await axios.get(
         "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/dashboard"
@@ -51,9 +54,12 @@ export default function PatientDashboard() {
         setAllergies(data.allergies || "");
         setPastConditions(data.pastconditions || "");
         setDiseases(data.diseases || []);
+        setloading(false);
       }
     } catch (e) {
       console.error("Failed to fetch patient data:", e);
+      alert("Error Occured !");
+      setloading(false);
     }
   };
 
@@ -108,6 +114,7 @@ export default function PatientDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100">
+      {loading && (<LoadingModal message="Loading Dashboard...."></LoadingModal>)}
       {/* Sidebar */}
       <aside className="w-64 bg-cyan-700 text-white flex flex-col">
         <div className="p-4 text-2xl font-bold border-b border-cyan-600">

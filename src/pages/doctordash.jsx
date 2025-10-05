@@ -3,6 +3,7 @@ import { Users, FileText, Calendar, Settings as SettingsIcon, LogOut, UserPlus }
 import { useNavigate } from "react-router-dom";
 import logOut from "@/lib/logout";
 import axios from "axios";
+import LoadingModal from "@/components/spinner";
 
 export default function DoctorDashboard() {
   const [active, setActive] = useState("patients");
@@ -14,19 +15,24 @@ export default function DoctorDashboard() {
   const [referral, setReferral] = useState({ name: "", referredDoctorUsername: "", patientusername: "", remarks: "" });
   const [patients, setpatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [loading, setloading] = useState(false);
 
 
 
   const doctordashboard = async () => {
+    setloading(true);
     try {
       const response = await axios.get("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/dashboard");
       if (response.status >= 200 && response.status < 300) {
         console.log(await response.data);
         setDoctorDetails(response.data);
+        setloading(false);
       }
     }
     catch (e) {
       console.log(e.response?.data || "Error");
+      alert("Error Occured !");
+      setloading(false);
     }
   }
 
@@ -124,6 +130,7 @@ export default function DoctorDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {loading && (<LoadingModal message="Loading Dashboard...."></LoadingModal>)}
       {/* Sidebar */}
       <aside className="w-64 bg-cyan-700 text-white shadow-md p-6 flex flex-col">
         <h2 className="text-2xl font-bold mb-6">Doctor Dashboard</h2>
@@ -159,7 +166,7 @@ export default function DoctorDashboard() {
               <img
                 width={20}
                 height={20}
-                style={{ marginTop: "2px" }}  
+                style={{ marginTop: "2px" }}
                 src={doctorDetails.status ? 'check.png' : 'xmark.png'}
                 alt="Close icon"
               />
