@@ -70,6 +70,24 @@ export default function AdminDashboard() {
         }
     };
 
+    //Verify Doctors
+    const verifyDoctor = async (id) => {
+        setloading(true);
+        try {
+            const response = await axios.post(`https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/verify/doctor/${id}`);
+            if (response.status >= 200 && response.status < 300) {
+                console.log(await response.data);
+                getDoctors();
+                alert(response.data || "Verified !");
+                setloading(false);
+            }
+        } catch (e) {
+            console.log("Error verifying Doctor : " + e);
+            alert("Error verifying Doctor");
+            setloading(false);
+        }
+    }
+
     useEffect(() => {
         getPatients();
         getDoctors();
@@ -205,6 +223,10 @@ export default function AdminDashboard() {
                                         <p className="text-sm text-gray-500">ID: {d.id}</p>
                                         <p className="text-sm text-gray-500">Specialization: {d.specialization || "N/A"}</p>
                                         <p className="text-sm text-gray-500">Email: {d.email || "N/A"}</p>
+                                        {!d.status && (
+                                            <button onClick={() => verifyDoctor(d.id)} className={`mt-2 px-3 py-1 text-white text-sm rounded-md   ${d.status ? 'bg-red-500 hover:bg-red-400' : 'bg-green-500 hover:bg-green-400'} `}>{d.status ? "Unverify" : "Verify"}</button>
+                                        )}
+                                        {" "}
                                         <button
                                             className="mt-2 px-3 py-1 bg-red-500 text-white text-sm rounded-md hover:bg-red-600"
                                             onClick={() => deleteDoctor(d.id, d.name)}

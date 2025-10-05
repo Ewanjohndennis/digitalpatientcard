@@ -171,7 +171,7 @@ export default function DoctorDashboard() {
                 {active === "patients" && (
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xl font-semibold">Welcome Dr.{doctorDetails.name}</span>
+                            <span className="text-xl font-semibold">Welcome Dr.{" " + doctorDetails.name}</span>
                             <img width={20} height={20} style={{ marginTop: "2px" }} src={doctorDetails.status ? 'check.png' : 'xmark.png'} alt="Status icon" />
                         </div>
                         <input type="text" placeholder="Search patients by username " className="w-full mb-4 p-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" onChange={(e) => setSearchTerm(e.target.value)} />
