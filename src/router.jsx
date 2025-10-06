@@ -11,6 +11,5 @@ export const router = createBrowserRouter([
   { path: "/patients", element: <Patients /> },
   { path: "/doctors", element: <Doctors /> },
   { path: "/add-patient", element: <AddPatient /> },
-  { path: "/verify/:id", element: <VerifyDetails /> },
-  { path: "/appointment", element: <AppointmentDiseasesPage /> }
+  { path: "/verify/:id", element: <VerifyDetails /> }
 ]);
