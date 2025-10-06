@@ -105,13 +105,16 @@ export default function PatientDashboard() {
   };
 
   const handleDeleteDisease = async (id) => {
+    if (!window.confirm(`Are you sure you want to delete the disease?`)) return;
+    setLoading(true);
     try {
       await axios.delete(`https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/delete-disease/${id}`);
       // Refresh the local diseases list (refetch or filter out the deleted one)
       getPatientData();
-      //setDiseases(diseases.filter((di) => di.id !== id));
+      setLoading(false);
     } catch (e) {
       alert("Error deleting disease. Please try again.");
+      setLoading(false);
     }
   }
 
