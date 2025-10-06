@@ -16,6 +16,7 @@ export default function DoctorDashboard() {
     const [doctors, setDoctors] = useState([]);
     const [loading, setloading] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [patientsfordoctor, setpatientsfordoctor] = useState([]);
 
     const doctordashboard = async () => {
         setloading(true);
@@ -44,6 +45,10 @@ export default function DoctorDashboard() {
         }
     }
 
+
+
+
+
     const getDoctors = async () => {
         try {
             const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all");
@@ -61,21 +66,36 @@ export default function DoctorDashboard() {
         getDoctors();
     }, [])
 
+    useEffect(() => {
+        const filtered_Patients = [];
+
+        patients.forEach(patient => {
+            if (patient.diseases.some(d => d.specialization === doctorDetails.specialization)) {
+                filtered_Patients.push(patient);
+            }
+        });
+
+        setpatientsfordoctor(filtered_Patients);
+    }, [patients])
+
     const filteredPatients = patients.filter(
         (p) =>
             p.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const verifyDisease = async (patientId, diseaseid) => {
+        setloading(true);
         try {
             const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/doctor/verify", null, {
                 params: { patientId, diseaseid }
             });
             if (response.status >= 200 && response.status < 300) {
                 findpatients();
+                setloading(false);
             }
         } catch (e) {
             console.log(e.response?.data || "Error , Cant verify patient disease!");
+            setloading(false);
         }
     };
 
@@ -177,7 +197,7 @@ export default function DoctorDashboard() {
                         <input type="text" placeholder="Search patients by username " className="w-full mb-4 p-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" onChange={(e) => setSearchTerm(e.target.value)} />
                         {filteredPatients.length > 0 ? (
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                {filteredPatients.map((p) => (
+                                {patientsfordoctor.map((p) => (
                                     <div key={p.id} className="p-4 bg-white rounded-lg shadow-sm border">
                                         <p className="font-medium text-lg">{p.name}</p>
                                         <p className="text-sm text-gray-500">ID: {p.id}</p>

@@ -7,7 +7,7 @@ import updateprofile from "@/lib/updateprofile";
 import LoadingModal from "@/components/spinner";
 
 export default function PatientDashboard() {
-  const [active, setActive] = useState("diseases");
+  const [active, setActive] = useState("doctors");
   const [diseases, setDiseases] = useState([]);
   const [diseaseInput, setDiseaseInput] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,6 +27,9 @@ export default function PatientDashboard() {
   const [allergies, setAllergies] = useState("");
   const [pastConditions, setPastConditions] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [doctors, setDoctors] = useState([]);
+
 
   const navigate = useNavigate();
 
@@ -62,27 +65,29 @@ export default function PatientDashboard() {
     }
   };
 
-  useEffect(() => {
-    getPatientData();
-  }, []);
-
-  // Add a disease
-  const addDisease = async () => {
-    if (!diseaseInput) return;
+  // Fetch doctors from backend
+  const getDoctors = async () => {
+    setLoading(true);
     try {
-      const response = await axios.post(
-        "https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/adddisease",
-        null,
-        { params: { description: diseaseInput } }
-      );
+      const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all");
       if (response.status >= 200 && response.status < 300) {
-        getPatientData();
-        setDiseaseInput("");
+        setDoctors(await response.data);
+        setLoading(false);
       }
     } catch (e) {
-      console.error("Failed to add disease:", e);
+      console.log("Error fetching doctors:", e);
+    } finally {
+      setLoading(false);
     }
   };
+
+
+
+  useEffect(() => {
+    getPatientData();
+    getDoctors();
+  }, []);
+
 
   // Download PDF
   const downloadPDF = async () => {
@@ -123,13 +128,19 @@ export default function PatientDashboard() {
     }
   }
 
+
+  const handleAppointment = (specialization) => {
+    navigate("/appointment", { state: { specialization: specialization } });
+  };
+
+
   useEffect(() => {
     getPatientData();
   }, []);
 
   const navItems = [
     { id: "my-info", label: "My Info", icon: <FileText size={18} /> },
-    { id: "diseases", label: "Diseases", icon: <FileText size={18} /> },
+    { id: "doctors", label: "Doctors", icon: <FileText size={18} /> },
     { id: "Manage Diseases", label: "Manage Diseases", icon: <FileText size={18} /> },
     { id: "settings", label: "Settings", icon: <Settings size={18} /> },
   ];
@@ -265,82 +276,48 @@ export default function PatientDashboard() {
           </div>
         )}
 
-        {/* Diseases */}
-        {active === "diseases" && (
-          <div className="bg-white rounded-2xl shadow p-6 space-y-4 text-gray-700">
-            <h2 className="text-xl font-semibold mb-4">Diseases</h2>
-            <div className="flex gap-2 mb-6">
-              <input
-                value={diseaseInput}
-                onChange={(e) => setDiseaseInput(e.target.value)}
-                placeholder="Enter disease"
-                className="px-3 py-2 border rounded-lg flex-1 focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-              />
-              <button
-                onClick={addDisease}
-                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition"
-              >
-                Add
-              </button>
-            </div>
-            <ul className="space-y-2">
-              {diseases.map((d) => (
-                <li
-                  key={d.id}
-                  className="bg-white shadow-sm rounded-xl p-4 flex flex-wrap justify-between items-center hover:shadow-md transition gap-2"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
-                    <span className="font-medium text-gray-800 truncate">{d.diseasename}</span>
-
-                    {d.verifiedDoctor && (
-                      <div className="flex items-center gap-1 text-sm text-gray-500 truncate">
-                        <span>Verified By: Dr. {d.verifiedDoctor}</span>
-                        <img
-                          src={
-                            d.isDoctorVerified === true
-                              ? "check.png"
-                              : "xmark.png"
-                          }
-                          alt="Doctor verification status"
-                          className="w-4 h-4 mt-[2px]"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <span
-                    className={`text-xs sm:text-sm px-2 py-1 rounded-full whitespace-nowrap shrink-0 ${d.status
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                      }`}
+        {/* Doctors */}
+        {active === "doctors" && (
+          <div>
+            <h3 className="text-xl font-semibold mb-4">All Doctors</h3>
+            {doctors.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {doctors.map((d) => (
+                  <div
+                    key={d.id}
+                    className="p-4 bg-white rounded-lg shadow border flex flex-col justify-between"
                   >
-                    {d.status ? "Verified" : "Unverified"}
-                  </span>
-                </li>
-              ))}
-            </ul>
+                    <div>
+                      <p className="font-medium text-lg">{d.name}</p>
+                      <p className="text-sm text-gray-500">ID: {d.id}</p>
+                      <p className="text-sm text-gray-500">
+                        Department: {d.specialization || "N/A"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedDoctor(d);
+                        handleAppointment(d.specialization);
+                      }}
+                      className="mt-2 px-3 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-500 text-sm"
+                    >
+                      Appointment
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No doctors found.</p>
+            )}
 
           </div>
         )}
+
 
         {/* Manage Diseases */}
         {active === "Manage Diseases" && (
           <div className="bg-white rounded-2xl shadow p-6 space-y-4 text-gray-700">
             <h2 className="text-xl font-semibold mb-4">Diseases</h2>
-            <div className="flex gap-2 mb-6">
-              <input
-                value={diseaseInput}
-                onChange={(e) => setDiseaseInput(e.target.value)}
-                placeholder="Enter disease"
-                className="px-3 py-2 border rounded-lg flex-1 focus:ring-2 focus:ring-cyan-500 focus:outline-none"
-              />
-              <button
-                onClick={addDisease}
-                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition"
-              >
-                Add
-              </button>
-            </div>
             <ul className="space-y-2">
               {diseases.map((d) => (
                 <li
