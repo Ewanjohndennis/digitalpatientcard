@@ -266,32 +266,43 @@ export default function PatientDashboard() {
               </button>
             </div>
             <ul className="space-y-2">
-              {diseases.map((d) => (
-                <li
-  key={d.id}
-  className="bg-white shadow-sm rounded-xl p-4 flex flex-wrap justify-between items-center hover:shadow-md transition gap-2"
->
-  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
-    <span className="font-medium text-gray-800 truncate">{d.diseasename}</span>
-    {d.verifiedDoctor && (
-      <span className="text-sm text-gray-500 truncate">
-        Verified By: Dr. {d.verifiedDoctor}
-      </span>
-    )}
-  </div>
-  <span
-    className={`text-xs sm:text-sm px-2 py-1 rounded-full whitespace-nowrap shrink-0 ${
-      d.status
-        ? "bg-green-100 text-green-700"
-        : "bg-yellow-100 text-yellow-700"
-    }`}
-  >
-    {d.status ? "Verified" : "Unverified"}
-  </span>
-</li>
+  {diseases.map((d) => (
+    <li
+      key={d.id}
+      className="bg-white shadow-sm rounded-xl p-4 flex flex-wrap justify-between items-center hover:shadow-md transition gap-2"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
+        <span className="font-medium text-gray-800 truncate">{d.diseasename}</span>
 
-              ))}
-            </ul>
+        {d.verifiedDoctor && (
+          <div className="flex items-center gap-1 text-sm text-gray-500 truncate">
+            <span>Verified By: Dr. {d.verifiedDoctor}</span>
+            <img
+              src={
+                d.isDoctorVerified === true
+                  ? "check.png"
+                  : "xmark.png"
+              }
+              alt="Doctor verification status"
+              className="w-4 h-4 mt-[2px]"
+            />
+          </div>
+        )}
+      </div>
+
+      <span
+        className={`text-xs sm:text-sm px-2 py-1 rounded-full whitespace-nowrap shrink-0 ${
+          d.status
+            ? "bg-green-100 text-green-700"
+            : "bg-yellow-100 text-yellow-700"
+        }`}
+      >
+        {d.status ? "Verified" : "Unverified"}
+      </span>
+    </li>
+  ))}
+</ul>
+
           </div>
         )}
 
