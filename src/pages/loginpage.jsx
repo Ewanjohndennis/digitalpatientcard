@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
 import login from "@/lib/Login";
@@ -16,12 +16,10 @@ export default function LoginPage() {
     e.preventDefault();
     if (role === "doctor") {
       login('doctor', username, password, navigate, setloading);
-    }
-    else if (role === "admin") {
+    } else if (role === "admin") {
       login('admin', username, password, navigate, setloading, adminpin);
-    }
-    else {
-      const res = login('patient', username, password, navigate, setloading);
+    } else {
+      login('patient', username, password, navigate, setloading);
     }
   };
 
@@ -31,14 +29,22 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* This line correctly renders the modal as an overlay when loading is true */}
+      {/* Loading overlay */}
       {loading && <LoadingModal message="Logging in..." />}
+
       {/* Left Section */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center bg-neutral-900 text-white px-8 md:px-12 py-16">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center bg-neutral-900 text-white px-8 md:px-12 py-16 relative">
+        
+        {/* Home Button in top-right */}
+        <button
+          onClick={handleHome}
+          className="absolute top-6 right-6 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors font-medium"
+        >
+          Home
+        </button>
+
         <div className="w-full max-w-2xl mx-auto">
           <h1 className="text-4xl font-bold mb-8">Digital Patient Card</h1>
-          <button onClick={handleHome} className="mb-4 px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-black transition-colors">
-            Home </button>
 
           {/* Role selection */}
           <div className="flex flex-wrap gap-3 mb-8">
@@ -46,15 +52,18 @@ export default function LoginPage() {
               <button
                 key={r}
                 onClick={() => setRole(r)}
-                className={`px-4 py-2 rounded-md ${role === r ? "bg-cyan-600 text-white" : "bg-gray-700 hover:bg-gray-600"
-                  }`}
+                className={`px-4 py-2 rounded-md ${
+                  role === r
+                    ? "bg-cyan-600 text-white"
+                    : "bg-gray-700 hover:bg-gray-600"
+                }`}
               >
                 {r.charAt(0).toUpperCase() + r.slice(1)}
               </button>
             ))}
           </div>
 
-          {/* Form */}
+          {/* Login Form */}
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
             <input
               value={username}
@@ -87,7 +96,7 @@ export default function LoginPage() {
             >
               Login
             </button>
-            <p className="mt-4 text-sm text-gray-400">
+            <p className="mt-4 text-sm text-gray-400 text-center">
               New here?{" "}
               <span
                 onClick={() => navigate("/register")}
@@ -114,5 +123,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-
 }

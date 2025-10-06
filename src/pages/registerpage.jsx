@@ -9,13 +9,13 @@ export default function RegisterPage() {
     username: "",
     password: "",
     confirmPassword: "",
-    name: "",         // patient
-    age: "",          // patient
-    phoneNumber: "",   // patient
+    name: "",
+    age: "",
+    phoneNumber: "",
     specialization: "",
     email: "",
     address: ""
-  })
+  });
 
   const navigate = useNavigate();
 
@@ -24,24 +24,31 @@ export default function RegisterPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-
+  const handleHome = () => {
+    navigate("/"); // navigate to home page
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    //console.log("Register data:", registrationRole, formData);
-
     if (registrationRole === "doctor") {
       await register('doctor', formData, navigate);
-    }
-    else {
+    } else {
       await register('patient', formData, navigate);
     }
   };
 
   return (
     <div className="min-h-screen flex">
+
       {/* Left Section: Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center bg-neutral-900 text-white px-8 md:px-12 py-16">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center bg-neutral-900 text-white px-8 md:px-12 py-16 relative">
+      {/* Home Button in top-right */}
+      <button
+        onClick={handleHome}
+        className="absolute top-6 right-6 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors font-medium z-10"
+      >
+        Home
+      </button>
         <div className="w-full max-w-2xl mx-auto">
           <h1 className="text-4xl font-bold mb-8">Get Started</h1>
 
@@ -51,10 +58,11 @@ export default function RegisterPage() {
               <button
                 key={role}
                 onClick={() => setRegistrationRole(role)}
-                className={`px-4 py-2 rounded-md ${registrationRole === role
-                  ? "bg-cyan-600 text-white"
-                  : "bg-gray-700 hover:bg-gray-600"
-                  }`}
+                className={`px-4 py-2 rounded-md ${
+                  registrationRole === role
+                    ? "bg-cyan-600 text-white"
+                    : "bg-gray-700 hover:bg-gray-600"
+                }`}
               >
                 {role.charAt(0).toUpperCase() + role.slice(1)}
               </button>
@@ -91,7 +99,7 @@ export default function RegisterPage() {
               value={formData.address}
               name="address"
               onChange={handleChange}
-              placeholder="address"
+              placeholder="Address"
               className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
             />
 
@@ -99,7 +107,7 @@ export default function RegisterPage() {
               value={formData.email}
               name="email"
               onChange={handleChange}
-              placeholder="email"
+              placeholder="Email"
               className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
             />
 
@@ -125,7 +133,7 @@ export default function RegisterPage() {
                   value={formData.phoneNumber}
                   name="phoneNumber"
                   onChange={handleChange}
-                  placeholder="PhoneNumber"
+                  placeholder="Phone Number"
                   className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
               </>
@@ -146,19 +154,16 @@ export default function RegisterPage() {
                   value={formData.specialization}
                   name="specialization"
                   onChange={handleChange}
-                  placeholder="specialization"
+                  placeholder="Specialization"
                   className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
                 <input
                   value={formData.phoneNumber}
                   name="phoneNumber"
                   onChange={handleChange}
-                  placeholder="PhoneNumber"
+                  placeholder="Phone Number"
                   className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
-
-
-
               </>
             )}
 

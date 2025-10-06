@@ -10,9 +10,10 @@ export default function AdminDashboard() {
     const [patients, setPatients] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [loading, setloading] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // State for mobile menu
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null); // For modal
+    const [userType, setUserType] = useState(""); // "patient" or "doctor"
     const navigate = useNavigate();
-
     // Fetch patients from backend
     const getPatients = async () => {
         setloading(true);
@@ -87,6 +88,68 @@ export default function AdminDashboard() {
             setloading(false);
         }
     }
+        const closeModal = () => {
+        setSelectedUser(null);
+        setUserType("");
+    };
+
+    // Modal Component
+    const UserDetailModal = ({ user, type }) => (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6 relative">
+                <button
+                    onClick={closeModal}
+                    className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+                >
+                    ✕
+                </button>
+                <h2 className="text-xl font-bold mb-4">{user.name}</h2>
+                <div className="space-y-2 text-gray-700">
+                    {type === "patient" && (
+                        <>
+                            <p><strong>ID:</strong> {user.id}</p>
+                            <p><strong>Age:</strong> {user.age}</p>
+                            <p><strong>Blood Group:</strong> {user.bloodgroup}</p>
+                            <p><strong>Email:</strong> {user.email || "N/A"}</p>
+                            <p><strong>Phone:</strong> {user.phoneNumber || "N/A"}</p>
+                            <p><strong>Address:</strong> {user.address || "N/A"}</p>
+                        </>
+                    )}
+                    {type === "doctor" && (
+                        <>
+                            <p><strong>ID:</strong> {user.id}</p>
+                            <p><strong>Specialization:</strong> {user.specialization || "N/A"}</p>
+                            <p><strong>Email:</strong> {user.email || "N/A"}</p>
+                            <p><strong>Phone:</strong> {user.phoneNumber || "N/A"}</p>
+                            <p><strong>Status:</strong> {user.status ? "Verified" : "Not Verified"}</p>
+                        </>
+                    )}
+                </div>
+                <div className="mt-4 flex gap-2">
+                    {type === "doctor" && !user.status && (
+                        <button
+                            onClick={() => verifyDoctor(user.id)}
+                            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-400"
+                        >
+                            Verify
+                        </button>
+                    )}
+                    <button
+                        onClick={() => {
+                            type === "patient"
+                                ? deletePatient(user.id, user.name)
+                                : deleteDoctor(user.id, user.name);
+                            closeModal();
+                        }}
+                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+
 
     useEffect(() => {
         getPatients();
@@ -102,8 +165,8 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <div className="flex flex-col md:flex-row h-screen bg-gray-50">
-            {loading && (<LoadingModal message="Loading Admin Dashboard...."></LoadingModal>)}
+         <div className="flex flex-col md:flex-row h-screen bg-gray-50">
+            {loading && <LoadingModal message="Loading Admin Dashboard...." />}
 
             {/* Mobile Header */}
             <header className="relative md:hidden flex justify-between items-center p-4 bg-gray-800 text-white shadow-md z-30">
@@ -185,62 +248,70 @@ export default function AdminDashboard() {
                 )}
 
                 {/* Patients */}
-                {active === "patients" && (
-                    <div>
-                        <h3 className="text-xl font-semibold mb-4">All Patients</h3>
-                        {patients.length > 0 ? (
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                {patients.map((p) => (
-                                    <div key={p.id} className="p-4 bg-white rounded-lg shadow border">
-                                        <p className="font-medium text-lg">{p.name}</p>
-                                        <p className="text-sm text-gray-500">ID: {p.id}</p>
-                                        <p className="text-sm text-gray-500">Age: {p.age}</p>
-                                        <p className="text-sm text-gray-500">Blood Group: {p.bloodgroup}</p>
-                                        <button
-                                            className="mt-2 px-3 py-1 bg-red-500 text-white text-sm rounded-md hover:bg-red-600"
-                                            onClick={() => deletePatient(p.id, p.name)}
-                                        >
-                                            Delete Patient
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-gray-500">No patients found.</p>
-                        )}
-                    </div>
-                )}
+{active === "patients" && (
+  <div>
+    <h3 className="text-xl font-semibold mb-4">All Patients</h3>
+    {patients.length > 0 ? (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {patients.map((p) => (
+          <div
+            key={p.id}
+            className="p-4 bg-white rounded-lg shadow border flex flex-col justify-between"
+          >
+            <div>
+              <p className="font-medium text-lg">{p.name}</p>
+              <p className="text-sm text-gray-500">ID: {p.id}</p>
+              <p className="text-sm text-gray-500">Age: {p.age}</p>
+              <p className="text-sm text-gray-500">Blood Group: {p.bloodgroup}</p>
+            </div>
+            <button
+              onClick={() => { setSelectedUser(p); setUserType("patient"); }}
+              className="mt-2 px-3 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-500 text-sm"
+            >
+              View
+            </button>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p className="text-gray-500">No patients found.</p>
+    )}
+  </div>
+)}
 
-                {/* Doctors */}
-                {active === "doctors" && (
-                    <div>
-                        <h3 className="text-xl font-semibold mb-4">All Doctors</h3>
-                        {doctors.length > 0 ? (
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                {doctors.map((d) => (
-                                    <div key={d.id} className="p-4 bg-white rounded-lg shadow border">
-                                        <p className="font-medium text-lg">{d.name}</p>
-                                        <p className="text-sm text-gray-500">ID: {d.id}</p>
-                                        <p className="text-sm text-gray-500">Specialization: {d.specialization || "N/A"}</p>
-                                        <p className="text-sm text-gray-500">Email: {d.email || "N/A"}</p>
-                                        {!d.status && (
-                                            <button onClick={() => verifyDoctor(d.id)} className={`mt-2 px-3 py-1 text-white text-sm rounded-md   ${d.status ? 'bg-red-500 hover:bg-red-400' : 'bg-green-500 hover:bg-green-400'} `}>{d.status ? "Unverify" : "Verify"}</button>
-                                        )}
-                                        {" "}
-                                        <button
-                                            className="mt-2 px-3 py-1 bg-red-500 text-white text-sm rounded-md hover:bg-red-600"
-                                            onClick={() => deleteDoctor(d.id, d.name)}
-                                        >
-                                            Delete Doctor
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-gray-500">No doctors found.</p>
-                        )}
-                    </div>
-                )}
+{/* Doctors */}
+{active === "doctors" && (
+  <div>
+    <h3 className="text-xl font-semibold mb-4">All Doctors</h3>
+    {doctors.length > 0 ? (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {doctors.map((d) => (
+          <div
+            key={d.id}
+            className="p-4 bg-white rounded-lg shadow border flex flex-col justify-between"
+          >
+            <div>
+              <p className="font-medium text-lg">{d.name}</p>
+              <p className="text-sm text-gray-500">ID: {d.id}</p>
+              <p className="text-sm text-gray-500">Specialization: {d.specialization || "N/A"}</p>
+            </div>
+            <button
+              onClick={() => { setSelectedUser(d); setUserType("doctor"); }}
+              className="mt-2 px-3 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-500 text-sm"
+            >
+              View
+            </button>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p className="text-gray-500">No doctors found.</p>
+    )}
+  </div>
+)}
+
+                {/* Render modal if user selected */}
+                {selectedUser && <UserDetailModal user={selectedUser} type={userType} />}
 
                 {/* Reports */}
                 {active === "reports" && (

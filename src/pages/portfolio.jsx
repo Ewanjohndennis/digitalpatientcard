@@ -51,6 +51,8 @@ export default function Home() {
           Your health records, anytime, anywhere.
         </p>
 
+        
+
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
             to="/login"
