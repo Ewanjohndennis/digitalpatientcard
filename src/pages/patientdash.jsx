@@ -62,10 +62,6 @@ export default function PatientDashboard() {
     }
   };
 
-  useEffect(() => {
-    getPatientData();
-  }, []);
-
   // Add a disease
   const addDisease = async () => {
     if (!diseaseInput) return;
@@ -108,10 +104,27 @@ export default function PatientDashboard() {
     }
   };
 
+  const handleDeleteDisease = async (id) => {
+    try {
+      await axios.delete(`https://digital-patient-card-backend-839268888277.asia-south1.run.app/patient/delete-disease/${id}`);
+      // Refresh the local diseases list (refetch or filter out the deleted one)
+      getPatientData();
+      //setDiseases(diseases.filter((di) => di.id !== id));
+    } catch (e) {
+      alert("Error deleting disease. Please try again.");
+    }
+  }
+
+  useEffect(() => {
+    getPatientData();
+  }, []);
+
   const navItems = [
     { id: "my-info", label: "My Info", icon: <FileText size={18} /> },
     { id: "diseases", label: "Diseases", icon: <FileText size={18} /> },
+    { id: "Manage Diseases", label: "Manage Diseases", icon: <FileText size={18} /> },
     { id: "settings", label: "Settings", icon: <Settings size={18} /> },
+
   ];
 
   return (
@@ -134,9 +147,8 @@ export default function PatientDashboard() {
                     setActive(item.id);
                     setIsMenuOpen(false);
                   }}
-                  className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md transition-colors ${
-                    active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
-                  }`}
+                  className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md transition-colors ${active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
+                    }`}
                 >
                   {item.icon} {item.label}
                 </button>
@@ -167,9 +179,8 @@ export default function PatientDashboard() {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${
-                active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
-              }`}
+              className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md mb-2 transition-colors ${active === item.id ? "bg-cyan-500" : "hover:bg-cyan-600"
+                }`}
             >
               {item.icon} {item.label}
             </button>
@@ -268,30 +279,84 @@ export default function PatientDashboard() {
             <ul className="space-y-2">
               {diseases.map((d) => (
                 <li
-  key={d.id}
-  className="bg-white shadow-sm rounded-xl p-4 flex flex-wrap justify-between items-center hover:shadow-md transition gap-2"
->
-  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
-    <span className="font-medium text-gray-800 truncate">{d.diseasename}</span>
-    {d.verifiedDoctor && (
-      <span className="text-sm text-gray-500 truncate">
-        Verified By: Dr. {d.verifiedDoctor}
-      </span>
-    )}
-  </div>
-  <span
-    className={`text-xs sm:text-sm px-2 py-1 rounded-full whitespace-nowrap shrink-0 ${
-      d.status
-        ? "bg-green-100 text-green-700"
-        : "bg-yellow-100 text-yellow-700"
-    }`}
-  >
-    {d.status ? "Verified" : "Unverified"}
-  </span>
-</li>
+                  key={d.id}
+                  className="bg-white shadow-sm rounded-xl p-4 flex flex-wrap justify-between items-center hover:shadow-md transition gap-2"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                    <span className="font-medium text-gray-800 truncate">{d.diseasename}</span>
+                    {d.verifiedDoctor && (
+                      <span className="text-sm text-gray-500 truncate">
+                        Verified By: Dr. {d.verifiedDoctor}
+                      </span>
+                    )}
+                  </div>
+                  <span
+                    className={`text-xs sm:text-sm px-2 py-1 rounded-full whitespace-nowrap shrink-0 ${d.status
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                      }`}
+                  >
+                    {d.status ? "Verified" : "Unverified"}
+                  </span>
+                </li>
 
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Manage Diseases */}
+        {active === "Manage Diseases" && (
+          <div className="bg-white rounded-2xl shadow p-6 space-y-4 text-gray-700">
+            <h2 className="text-xl font-semibold mb-4">Diseases</h2>
+            <div className="flex gap-2 mb-6">
+              <input
+                value={diseaseInput}
+                onChange={(e) => setDiseaseInput(e.target.value)}
+                placeholder="Enter disease"
+                className="px-3 py-2 border rounded-lg flex-1 focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+              />
+              <button
+                onClick={addDisease}
+                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition"
+              >
+                Add
+              </button>
+            </div>
+            <ul className="space-y-2">
+              {diseases.map((d) => (
+                <li
+                  key={d.id}
+                  className="bg-white shadow-sm rounded-xl p-4 flex flex-wrap justify-between items-center hover:shadow-md transition gap-2"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                    <span className="font-medium text-gray-800 truncate">{d.diseasename}</span>
+                    {d.verifiedDoctor && (
+                      <span className="text-sm text-gray-500 truncate">
+                        Verified By: Dr. {d.verifiedDoctor}
+                      </span>
+                    )}
+                  </div>
+                  <span
+                    className={`text-xs sm:text-sm px-2 py-1 rounded-full whitespace-nowrap shrink-0 ${d.status
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                      }`}
+                  >
+                    {d.status ? "Verified" : "Unverified"}
+                  </span>
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDeleteDisease(d.id)}
+                    className="ml-2 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded-full flex items-center"
+                    title="Delete Disease"
+                  >
+                    Delete &#10006; {/* Unicode multiply/cross character as delete icon */}
+                  </button>
+                </li>
+              ))}
+            </ul>
+
           </div>
         )}
 
