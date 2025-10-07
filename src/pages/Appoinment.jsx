@@ -182,6 +182,8 @@ export default function AppointmentDiseasesPage() {
 
             {/* Main Content */}
             <main className="flex-1 p-6 overflow-y-auto">
+                <button onClick={()=>navigate(-1)}
+                className="flex items-center gap-2 mb-4 text-cyan-600 hover:underline">&larr;Back to Dashboard</button>
 
                 {/* Diseases */}
                 {active === "diseases" && (
@@ -217,8 +219,8 @@ export default function AppointmentDiseasesPage() {
                                                     <img
                                                         src={
                                                             d.isDoctorVerified === true
-                                                                ? "check.png"
-                                                                : "xmark.png"
+                                                                ? "xmark.png"
+                                                                : "check.png"
                                                         }
                                                         alt="Doctor verification status"
                                                         className="w-4 h-4 mt-[2px]"
