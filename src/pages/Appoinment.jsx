@@ -9,15 +9,18 @@ import LoadingModal from "@/components/spinner";
 export default function AppointmentDiseasesPage() {
     const location = useLocation();
     const { specialization } = location.state || {};
+    const { drname } = location.state || {};
     const [active, setActive] = useState("diseases");
     const [diseases, setDiseases] = useState([]);
     const [diseaseInput, setDiseaseInput] = useState("");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [doctors, setDoctors] = useState([]);
 
     // Patient profile states
     const [patientName, setPatientName] = useState("");
     const [username, setUsername] = useState("");
     const [loading, setLoading] = useState(false);
+    const [filteredDiseases, setFilteredDiseases] = useState([])
 
     const navigate = useNavigate();
 
@@ -42,9 +45,31 @@ export default function AppointmentDiseasesPage() {
         }
     };
 
+    const getDoctors = async () => {
+        try {
+            const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all");
+            if (response.status >= 200 && response.status < 300) {
+                setDoctors(response.data);
+            }
+        } catch (e) {
+            console.log("Error fetching doctors:", e);
+        }
+    };
+
     useEffect(() => {
         getPatientData();
+        getDoctors();
     }, []);
+
+    useEffect(() => {
+        if (!specialization || diseases.length === 0) {
+            setFilteredDiseases([]);
+            return;
+        }
+        // Filter correctly based on specialization
+        setFilteredDiseases(diseases.filter(d => d.specialization === specialization));
+    }, [diseases, specialization]);
+
 
     // Add a disease
     const addDisease = async () => {
@@ -80,10 +105,6 @@ export default function AppointmentDiseasesPage() {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        getPatientData();
-    }, []);
 
     const navItems = [
         { id: "diseases", label: "Diseases", icon: <FileText size={18} /> },
@@ -165,7 +186,7 @@ export default function AppointmentDiseasesPage() {
                 {/* Diseases */}
                 {active === "diseases" && (
                     <div className="bg-white rounded-2xl shadow p-6 space-y-4 text-gray-700">
-                        <h2 className="text-xl font-semibold mb-4"><span>Appoinment for Dr. { } Under the Department {specialization}</span><br />Diseases</h2>
+                        <h2 className="text-xl font-semibold mb-4"><span>Appointment for Dr. {drname} Under the Department {specialization}</span><br />Diseases</h2>
                         <div className="flex gap-2 mb-6">
                             <input
                                 value={diseaseInput}
@@ -180,42 +201,45 @@ export default function AppointmentDiseasesPage() {
                                 Add
                             </button>
                         </div>
-                        <ul className="space-y-2">
-                            {diseases.map((d) => (
-                                <li
-                                    key={d.id}
-                                    className="bg-white shadow-sm rounded-xl p-4 flex flex-wrap justify-between items-center hover:shadow-md transition gap-2"
-                                >
-                                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
-                                        <span className="font-medium text-gray-800 truncate">{d.diseasename}</span>
-
-                                        {d.verifiedDoctor && (
-                                            <div className="flex items-center gap-1 text-sm text-gray-500 truncate">
-                                                <span>Verified By: Dr. {d.verifiedDoctor}</span>
-                                                <img
-                                                    src={
-                                                        d.isDoctorVerified === true
-                                                            ? "check.png"
-                                                            : "xmark.png"
-                                                    }
-                                                    alt="Doctor verification status"
-                                                    className="w-4 h-4 mt-[2px]"
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <span
-                                        className={`text-xs sm:text-sm px-2 py-1 rounded-full whitespace-nowrap shrink-0 ${d.status
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-yellow-100 text-yellow-700"
-                                            }`}
+                        {filteredDiseases.length > 0 ? (
+                            <ul className="space-y-2">
+                                {filteredDiseases.map((d) => (
+                                    <li
+                                        key={d.id}
+                                        className="bg-white shadow-sm rounded-xl p-4 flex flex-wrap justify-between items-center hover:shadow-md transition gap-2"
                                     >
-                                        {d.status ? "Verified" : "Unverified"}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                                            <span className="font-medium text-gray-800 truncate">{d.diseasename}</span>
+
+                                            {d.verifiedDoctor && (
+                                                <div className="flex items-center gap-1 text-sm text-gray-500 truncate">
+                                                    <span>Verified By: Dr. {d.verifiedDoctor}</span>
+                                                    <img
+                                                        src={
+                                                            d.isDoctorVerified === true
+                                                                ? "check.png"
+                                                                : "xmark.png"
+                                                        }
+                                                        alt="Doctor verification status"
+                                                        className="w-4 h-4 mt-[2px]"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <span
+                                            className={`text-xs sm:text-sm px-2 py-1 rounded-full whitespace-nowrap shrink-0 ${d.status
+                                                ? "bg-green-100 text-green-700"
+                                                : "bg-yellow-100 text-yellow-700"
+                                                }`}
+                                        >
+                                            {d.status ? "Verified" : "Unverified"}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : "No Appoinments For this Doctor!"}
+
 
                     </div>
                 )}

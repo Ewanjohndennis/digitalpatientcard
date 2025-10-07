@@ -129,8 +129,8 @@ export default function PatientDashboard() {
   }
 
 
-  const handleAppointment = (specialization) => {
-    navigate("/appointment", { state: { specialization: specialization } });
+  const handleAppointment = (specialization, drname) => {
+    navigate("/appointment", { state: { specialization: specialization, drname: drname } });
   };
 
 
@@ -297,7 +297,7 @@ export default function PatientDashboard() {
                     <button
                       onClick={() => {
                         setSelectedDoctor(d);
-                        handleAppointment(d.specialization);
+                        handleAppointment(d.specialization, d.name);
                       }}
                       className="mt-2 px-3 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-500 text-sm"
                     >

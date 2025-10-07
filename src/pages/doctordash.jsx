@@ -49,6 +49,7 @@ export default function DoctorDashboard() {
 
 
 
+
     const getDoctors = async () => {
         try {
             const response = await axios.post("https://digital-patient-card-backend-839268888277.asia-south1.run.app/admin/doctors/all");
@@ -128,6 +129,29 @@ export default function DoctorDashboard() {
             alert("Failed to submit referral. Please try again.");
         } finally {
             setloading(false);
+        }
+    };
+
+    const downloadPDF = async (username) => {
+        if (!username) return alert("Username not available");
+        try {
+            const response = await axios.get(
+                `https://digital-patient-card-backend-839268888277.asia-south1.run.app/download/patient-pdf`,
+                {
+                    params: { username },
+                    responseType: "blob",
+                }
+            );
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "patient.pdf");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error("Failed to download PDF:", err);
+            alert("Failed to download PDF");
         }
     };
 
@@ -211,6 +235,12 @@ export default function DoctorDashboard() {
                                                 </div>
                                             ))}
                                         </div>
+                                        <button
+                                            onClick={() => { downloadPDF(p.username) }}
+                                            className="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+                                        >
+                                            Download DPC
+                                        </button>
                                     </div>
                                 ))}
                             </div>
