@@ -90,13 +90,6 @@ The Digital Patient Card Frontend is a user-friendly React application designed 
 
 ## Contribution Guidelines
 We welcome contributions from the developer community! Please fork the repo and submit pull requests for bug fixes, features, or UI improvements. For significant features, please open an issue first for discussion.
-
----
-
-## Contact Information
-For questions, suggestions, or support, please contact:  
-[Your Name] - your.email@example.com
-
 ---
 
 Thank you for using the Digital Patient Card Frontend. We hope it makes managing your healthcare simpler and more efficient!
